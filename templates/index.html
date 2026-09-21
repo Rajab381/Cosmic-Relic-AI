@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Edith AI</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+</head>
+
+<body>
+
+<div class="scan-line"></div>
+
+<div class="background-grid"></div>
+
+<div class="background-glow"></div>
+
+<div class="particles"></div>
+
+<div class="container">
+
+    <!-- =====================================================
+         LEFT SIDEBAR
+    ====================================================== -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="edith-brand">
+
+            <div class="edith-eye">
+                <div class="eye-center"></div>
+            </div>
+
+            <div>
+                <h2>EDITH</h2>
+                <p class="version">v1.0</p>
+            </div>
+
+        </div>
+
+        <hr>
+
+        <input type="file"
+               id="pdfFile"
+               hidden>
+
+        <div class="upload-card"
+             onclick="document.getElementById('pdfFile').click()">
+
+            <div class="upload-icon">📄</div>
+
+            <h3>Upload Document</h3>
+
+            <p>PDF • DOCX • TXT</p>
+
+        </div>
+
+        <button onclick="uploadPDF()">📄 Upload PDF</button>
+
+        <button onclick="startChat()">💬 New Chat</button>
+
+        <button>🧠 Memory</button>
+
+        <button>🧮 Tools</button>
+
+        <button>⚙ Settings</button>
+
+    </aside>
+
+
+    <!-- =====================================================
+         MAIN CHAT AREA
+    ====================================================== -->
+
+    <main class="chat-area"
+          id="chatArea">
+
+        <div id="landingScreen">
+
+            <div class="header"
+                 id="hero">
+
+                <!--
+                    cosmic-interface.js creates the entire
+                    cosmic environment inside this element.
+                -->
+
+                <div class="cosmic-title-space"></div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             CHAT WORKSPACE
+        ================================================== -->
+
+        <div id="workspace"
+             class="hidden-workspace">
+
+            <div id="response"></div>
+
+            <div class="input-box">
+
+                <button class="icon-btn"
+                        type="button">
+                    📎
+                </button>
+
+                <input id="message"
+                       type="text"
+                       placeholder="Ask Edith anything...">
+
+                <button class="icon-btn mic-btn"
+                        type="button">
+                    🎤
+                </button>
+
+                <button class="send-btn"
+                        type="button"
+                        onclick="sendMessage()">
+                    ➜
+                </button>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<!-- =========================================================
+     SCRIPTS
+========================================================= -->
+
+<script src="{{ url_for('static', filename='js/cosmic-interface.js') }}"></script>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+<div class="cursor-glow"></div>
+
+</body>
+</html>
