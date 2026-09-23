@@ -1,21 +1,3 @@
-# EDITH AI
-
-> **Even Dead, I Am The Hero**
-
-A modern Local AI Operating System built using **Python, Flask, LangGraph, Ollama, Retrieval-Augmented Generation (RAG), and Llama 3.2**.
-
-EDITH is designed to function as a private desktop AI assistant capable of intelligent conversations, document understanding, tool execution, and local inference without relying on cloud APIs.
-
----
-
-## Preview
-
-<img width="100%" src="assets/edith-preview.png">
-
----
-
-# Features
-
 ### AI Chat
 
 - Local Llama 3.2 inference
@@ -62,22 +44,6 @@ Tool architecture is modular and easily extendable.
 ### Memory
 
 Conversation history is stored during runtime to maintain context.
-
----
-
-### Modern UI
-
-Inspired by Marvel's EDITH AI.
-
-Features
-
-- Futuristic holographic interface
-- Animated AI Core
-- Boot sequence
-- Productivity mode
-- Streaming response animation
-- Responsive layout
-- Cyberpunk visual effects
 
 ---
 
@@ -251,29 +217,6 @@ http://127.0.0.1:5000
 
 ---
 
-# Author
-
-## Rajab Ghufran
-
-Robotics & AI Engineering Student
-
-University of Management & Technology (UMT)
-
-Lahore, Pakistan
-
-LinkedIn
-
-https://linkedin.com/in/rajab-ghufran
-
-GitHub
-
-https://github.com/Rajab381
-
----
-
-# Inspiration
-
-Inspired by Marvel's **EDITH** system from Iron-Man while combining modern AI engineering practices including LangGraph, Retrieval-Augmented Generation, and Local LLM deployment.
 
 ---
 
