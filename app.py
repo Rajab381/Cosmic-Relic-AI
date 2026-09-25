@@ -44,7 +44,7 @@ def upload():
 
     filename = secure_filename(file.filename)
 
-    upload_folder = "uploads"
+    upload_folder = "Uploads" if os.path.isdir("Uploads") else "uploads"
 
     os.makedirs(upload_folder, exist_ok=True)
 
@@ -93,7 +93,7 @@ def chat_stream():
     )
 if __name__ == "__main__":
 
-    print("1. Starting Edith...")
+    print("1. Starting Cosmic Relic...")
 
     print("2. Loading PDF...")
 
@@ -103,7 +103,7 @@ if __name__ == "__main__":
 
     else:
 
-        print("⚠ No PDF loaded. Edith will still work without documents.")
+        print("[!] No PDF loaded. Cosmic Relic will still work without documents.")
 
     print("4. Starting Flask...")
     app.run(debug=False)

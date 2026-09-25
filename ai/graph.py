@@ -179,19 +179,28 @@ def stream_graph(question):
 
     if not rag.loaded:
 
-        history = get_history()
+        history = get_history() + [
 
-        history.append({
+            {
 
-            "role": "user",
+                "role": "user",
 
-            "content": question
+                "content": question
 
-        })
+            }
+
+        ]
+
+        full_response = ""
 
         for chunk in ask_llm_stream(history):
+            full_response += chunk
 
             yield chunk
+
+        add_message("user", question)
+
+        add_message("assistant", full_response)
 
         return
 
@@ -216,9 +225,16 @@ def stream_graph(question):
 
         ]
 
+        full_response = ""
+
         for chunk in ask_llm_stream(prompt, context):
+            full_response += chunk
 
             yield chunk
+
+        add_message("user", question)
+
+        add_message("assistant", full_response)
 
     else:
 

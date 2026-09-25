@@ -5988,3 +5988,438 @@ body {
     }
 
 }
+
+
+/* =========================================================
+   COSMIC RELIC AI — MODERNIZED INTERFACE (PHASES 2, 3, 4, 5)
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   1. TRANSLUCENT / GLASSMORPHIC SIDEBAR & BRAND
+   --------------------------------------------------------- */
+.sidebar {
+    background: rgba(6, 14, 25, 0.82) !important;
+    backdrop-filter: blur(22px) !important;
+    -webkit-backdrop-filter: blur(22px) !important;
+    border: 1px solid rgba(86, 224, 160, 0.22) !important;
+    box-shadow: 0 20px 80px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    transition: all 0.3s ease;
+}
+
+.cosmic-brand {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.cosmic-emblem {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(66, 191, 255, 0.16), rgba(86, 224, 160, 0.18));
+    border: 1px solid rgba(86, 224, 160, 0.45);
+    box-shadow: 0 0 18px rgba(86, 224, 160, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.emblem-core {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    transform: rotate(45deg);
+    background: #56e0a0;
+    box-shadow: 0 0 12px #56e0a0, 0 0 24px rgba(86, 224, 160, 0.6);
+    animation: cosmicCorePulse 2.4s ease-in-out infinite;
+}
+
+.emblem-ring {
+    position: absolute;
+    inset: -3px;
+    border-radius: 14px;
+    border: 1px dashed rgba(66, 191, 255, 0.4);
+    animation: emblemSpin 16s linear infinite;
+}
+
+@keyframes cosmicCorePulse {
+    0%, 100% { transform: rotate(45deg) scale(0.92); opacity: 0.9; }
+    50% { transform: rotate(45deg) scale(1.1); opacity: 1; filter: drop-shadow(0 0 8px #56e0a0); }
+}
+
+@keyframes emblemSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.cosmic-brand h2 {
+    font-family: "Orbitron", sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: #ffffff;
+    text-shadow: 0 0 12px rgba(86, 224, 160, 0.5);
+    margin: 0;
+}
+
+.cosmic-brand .version {
+    font-family: "Inter", sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: #56e0a0;
+    margin-top: 3px;
+}
+
+.sidebar-hr {
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(86, 224, 160, 0.35), transparent);
+    margin: 14px 0;
+}
+
+/* ---------------------------------------------------------
+   2. DASHBOARD BUTTONS & GREEN HIGHLIGHT HOVER
+   --------------------------------------------------------- */
+.sidebar .upload-card {
+    background: rgba(12, 26, 44, 0.65) !important;
+    border: 1px solid rgba(90, 200, 255, 0.18) !important;
+    border-radius: 14px !important;
+    padding: 14px !important;
+    cursor: pointer;
+    transition: all 0.25s ease !important;
+    backdrop-filter: blur(12px) !important;
+}
+
+.sidebar .upload-card:hover,
+.sidebar .upload-card:focus-visible {
+    border-color: #56e0a0 !important;
+    box-shadow: 0 0 20px rgba(86, 224, 160, 0.3) !important;
+    transform: translateY(-2px) !important;
+    background: rgba(16, 36, 60, 0.8) !important;
+}
+
+.sidebar .upload-card h3 {
+    color: #ffffff !important;
+    font-family: "Orbitron", sans-serif !important;
+    font-size: 12px !important;
+    letter-spacing: 0.08em !important;
+}
+
+.sidebar .upload-card p {
+    color: #799bbb !important;
+    font-size: 11px !important;
+}
+
+.sidebar .dash-btn {
+    width: 100%;
+    margin-top: 8px;
+    padding: 11px 13px;
+    border-radius: 11px;
+    border: 1px solid rgba(90, 200, 255, 0.13);
+    background: rgba(11, 23, 39, 0.68);
+    color: #e2f1fc;
+    font-family: "Inter", sans-serif;
+    font-size: 12.5px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    backdrop-filter: blur(10px);
+}
+
+.sidebar .dash-btn:hover,
+.sidebar .dash-btn:focus-visible {
+    transform: translateX(4px);
+    background: rgba(18, 38, 62, 0.9);
+    border-color: #56e0a0;
+    color: #ffffff;
+    box-shadow: 0 0 16px rgba(86, 224, 160, 0.28), inset 0 0 10px rgba(86, 224, 160, 0.08);
+}
+
+.sidebar .dash-btn.primary-btn {
+    background: linear-gradient(135deg, rgba(66, 191, 255, 0.22), rgba(86, 224, 160, 0.25));
+    border-color: rgba(86, 224, 160, 0.4);
+    font-weight: 600;
+}
+
+.sidebar .dash-btn.primary-btn:hover {
+    border-color: #56e0a0;
+    box-shadow: 0 0 22px rgba(86, 224, 160, 0.45);
+}
+
+/* ---------------------------------------------------------
+   3. SIDEBAR SIX CORES MINI-TELEMETRY GRID
+   --------------------------------------------------------- */
+.sidebar-cores-panel {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(90, 200, 255, 0.12);
+}
+
+.sidebar-cores-label {
+    font-family: "Orbitron", sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    color: #6a8ba8;
+    margin-bottom: 8px;
+}
+
+.sidebar-cores-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.sidebar-core-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 9px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(10, 20, 34, 0.65);
+    color: #a4c4de;
+    font-family: "Orbitron", sans-serif;
+    font-size: 9.5px;
+    letter-spacing: 0.07em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.sidebar-core-pill:hover,
+.sidebar-core-pill.active-pill {
+    background: rgba(20, 42, 68, 0.95);
+    border-color: #56e0a0;
+    color: #ffffff;
+    box-shadow: 0 0 14px rgba(86, 224, 160, 0.35);
+    transform: translateY(-1px);
+}
+
+.pill-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.space-dot { background: #42bfff; box-shadow: 0 0 6px #42bfff; }
+.reality-dot { background: #ff4f91; box-shadow: 0 0 6px #ff4f91; }
+.power-dot { background: #9d5cff; box-shadow: 0 0 6px #9d5cff; }
+.mind-dot { background: #ffd34e; box-shadow: 0 0 6px #ffd34e; }
+.time-dot { background: #ff9b42; box-shadow: 0 0 6px #ff9b42; }
+.soul-dot { background: #56e0a0; box-shadow: 0 0 6px #56e0a0; }
+
+/* ---------------------------------------------------------
+   4. RETIRE OBSOLETE ORBITAL STONES
+   --------------------------------------------------------- */
+.orbital-system {
+    display: none !important;
+    pointer-events: none !important;
+}
+
+.cosmic-stone,
+.stone-facet,
+.cosmic-core-halo,
+.cosmic-core-label,
+.cosmic-core-symbol {
+    display: none !important;
+}
+
+/* ---------------------------------------------------------
+   5. REFINED SVG ENDPOINT STONES (PHASE 2)
+   --------------------------------------------------------- */
+.cosmic-endpoint-stone {
+    cursor: pointer;
+    outline: none;
+    pointer-events: all;
+    transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.3, 1), filter 0.25s ease;
+}
+
+.cosmic-endpoint-stone:hover,
+.cosmic-endpoint-stone:focus-visible,
+.cosmic-endpoint-stone.active-stone {
+    filter: drop-shadow(0 0 8px #56e0a0) drop-shadow(0 0 20px #56e0a0);
+}
+
+.cosmic-stone-halo {
+    opacity: 0.3;
+    animation: stoneHaloPulse 3s ease-in-out infinite;
+}
+
+.cosmic-endpoint-stone:hover .cosmic-stone-halo,
+.cosmic-endpoint-stone.active-stone .cosmic-stone-halo {
+    opacity: 0.95;
+    r: 18;
+    stroke-width: 1.8;
+}
+
+@keyframes stoneHaloPulse {
+    0%, 100% { opacity: 0.25; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.15); }
+}
+
+.cosmic-crystal-body {
+    transition: all 0.22s ease;
+}
+
+.cosmic-endpoint-stone:hover .cosmic-crystal-body,
+.cosmic-endpoint-stone.active-stone .cosmic-crystal-body {
+    fill-opacity: 0.75;
+    stroke-width: 2;
+}
+
+.cosmic-endpoint-label {
+    font-family: "Orbitron", sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    fill: #d5ecfc;
+    transition: all 0.2s ease;
+    pointer-events: none;
+}
+
+.cosmic-endpoint-stone:hover .cosmic-endpoint-label,
+.cosmic-endpoint-stone.active-stone .cosmic-endpoint-label {
+    fill: #ffffff;
+    filter: drop-shadow(0 0 8px #56e0a0);
+}
+
+/* ---------------------------------------------------------
+   6. CENTRAL IDENTITY & TELEMETRY HUD (PHASE 3)
+   --------------------------------------------------------- */
+.cosmic-identity {
+    width: min(540px, 92vw) !important;
+    pointer-events: auto !important;
+}
+
+.cosmic-core-hud {
+    margin-top: 18px;
+    width: 100%;
+    padding: 12px 18px;
+    border-radius: 14px;
+    background: rgba(6, 15, 28, 0.78);
+    border: 1px solid rgba(86, 224, 160, 0.3);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(86, 224, 160, 0.12);
+    text-align: center;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cosmic-hud-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.cosmic-hud-tag {
+    font-family: "Orbitron", sans-serif;
+    font-size: 8.5px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    padding: 2px 7px;
+    border-radius: 4px;
+    border: 1px solid rgba(86, 224, 160, 0.4);
+    color: #56e0a0;
+    background: rgba(86, 224, 160, 0.1);
+    transition: all 0.25s ease;
+}
+
+.cosmic-hud-title {
+    font-family: "Orbitron", sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: #ffffff;
+    text-shadow: 0 0 14px rgba(86, 224, 160, 0.6);
+    transition: all 0.25s ease;
+}
+
+.cosmic-hud-body {
+    font-family: "Inter", sans-serif;
+    font-size: 12px;
+    line-height: 1.45;
+    color: #c4dcee;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cosmic-hud-cursor {
+    display: inline;
+    color: #56e0a0;
+    font-weight: bold;
+    margin-left: 2px;
+    animation: blinkCursor 0.8s infinite;
+}
+
+@keyframes blinkCursor {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* ---------------------------------------------------------
+   7. CHAT WORKSPACE & STREAM POLISH (PHASE 5)
+   --------------------------------------------------------- */
+#response {
+    scroll-behavior: smooth !important;
+}
+
+.input-box {
+    background: rgba(7, 18, 32, 0.82) !important;
+    border: 1px solid rgba(86, 224, 160, 0.25) !important;
+    backdrop-filter: blur(20px) !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 25px rgba(86, 224, 160, 0.08) !important;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease !important;
+}
+
+.input-box:focus-within {
+    border-color: #56e0a0 !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(86, 224, 160, 0.25) !important;
+}
+
+.send-btn {
+    background: linear-gradient(135deg, #56e0a0, #36bce8) !important;
+    color: #03101b !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.send-btn:hover {
+    transform: scale(1.06) !important;
+    box-shadow: 0 0 25px rgba(86, 224, 160, 0.5) !important;
+}
+
+.bubble.ai-bubble {
+    background: rgba(12, 24, 42, 0.78) !important;
+    border: 1px solid rgba(86, 224, 160, 0.22) !important;
+    backdrop-filter: blur(14px) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35) !important;
+}
+
+.bubble.user-bubble {
+    background: linear-gradient(135deg, rgba(22, 50, 84, 0.82), rgba(12, 32, 58, 0.85)) !important;
+    border: 1px solid rgba(90, 200, 255, 0.25) !important;
+    backdrop-filter: blur(14px) !important;
+}
+
+.thinking-title {
+    color: #56e0a0 !important;
+}
+
+.thinking-core {
+    background: #56e0a0 !important;
+    box-shadow: 0 0 12px #56e0a0 !important;
+}
+

@@ -1,21 +1,11 @@
+let statusInterval = null;
+
 async function sendMessage() {
 
     const input = document.getElementById("message");
     const message = input.value.trim();
 
     if (message === "") return;
-
-
-    // ========================================
-    // COSMIC CORE ROUTING
-    // ========================================
-
-    if (window.CosmicInterface) {
-
-        window.CosmicInterface.processPrompt(message);
-
-    }
-
 
     const chat = document.getElementById("response");
     const hero = document.getElementById("hero");
@@ -73,10 +63,6 @@ async function sendMessage() {
     // THINKING ANIMATION
     // ==========================
 
-// ==========================
-// THINKING
-// ==========================
-
 chat.innerHTML += `
 <div class="message ai-message" id="thinking">
 
@@ -95,7 +81,7 @@ chat.innerHTML += `
             <div class="thinking-core"></div>
 
             <span class="thinking-title">
-                Edith is thinking...
+                Cosmic Relic is thinking...
             </span>
 
         </div>
@@ -112,6 +98,12 @@ chat.innerHTML += `
 // Scroll after adding thinking bubble
 chat.scrollTop = chat.scrollHeight;
 
+// Clear any previous interval before starting a new one
+if (statusInterval) {
+    clearInterval(statusInterval);
+    statusInterval = null;
+}
+
 // Thinking animation text
 const stages = [
 
@@ -127,7 +119,7 @@ const stages = [
 
 let stage = 0;
 
-const statusInterval = setInterval(() => {
+statusInterval = setInterval(() => {
 
     const label = document.getElementById("thinkingStatus");
 
@@ -166,7 +158,15 @@ const response = await fetch("/chat_stream", {
 
 });
 
-document.getElementById("thinking").remove();
+if (statusInterval) {
+    clearInterval(statusInterval);
+    statusInterval = null;
+}
+
+const thinkingElem = document.getElementById("thinking");
+if (thinkingElem) {
+    thinkingElem.remove();
+}
 
 // Create empty AI message
 
@@ -238,33 +238,42 @@ while(true){
 async function uploadPDF() {
 
     const fileInput = document.getElementById("pdfFile");
+    if (!fileInput) return;
 
     const file = fileInput.files[0];
 
     if (!file) {
-
-        alert("Choose a PDF first.");
-
+        fileInput.click();
         return;
+    }
 
+    const statusLabel = document.getElementById("uploadStatusText");
+    if (statusLabel) {
+        statusLabel.textContent = "Uploading & Indexing...";
     }
 
     const formData = new FormData();
-
     formData.append("file", file);
 
-    const response = await fetch("/upload", {
+    try {
+        const response = await fetch("/upload", {
+            method: "POST",
+            body: formData
+        });
 
-        method: "POST",
+        const data = await response.json();
 
-        body: formData
+        if (statusLabel) {
+            statusLabel.textContent = file.name.length > 20 ? file.name.substring(0, 18) + "..." : file.name;
+        }
 
-    });
-
-    const data = await response.json();
-
-    alert(data.message);
-
+        alert(data.message || "Document processed into Cosmic Relic RAG.");
+    } catch (err) {
+        if (statusLabel) {
+            statusLabel.textContent = "Upload failed";
+        }
+        alert("Upload error: " + err.message);
+    }
 }
 
 const glow = document.querySelector(".cursor-glow");
@@ -303,67 +312,59 @@ window.onload = () => {
     const fill = document.getElementById("bootFill");
     const boot = document.getElementById("bootScreen");
 
-    if(fill){
-
+    if (fill) {
         fill.style.width = "100%";
-
     }
 
-    if(boot){
-
-        setTimeout(()=>{
-
+    if (boot) {
+        setTimeout(() => {
             boot.style.opacity = "0";
+        }, 2300);
 
-        },2300);
-
-        setTimeout(()=>{
-
+        setTimeout(() => {
             boot.remove();
-
-        },3300);
-
+        }, 3300);
     }
-
 };
-function startChat(){
+
+document.addEventListener("DOMContentLoaded", () => {
+    const msgInput = document.getElementById("message");
+    if (msgInput) {
+        msgInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    }
+});
+
+function startChat() {
 
     const landing = document.getElementById("landingScreen");
     const workspace = document.getElementById("workspace");
     const chatArea = document.getElementById("chatArea");
     const hero = document.getElementById("hero");
 
-    if(landing){
-
+    if (landing) {
         landing.style.display = "none";
-
     }
 
-    if(workspace){
-
+    if (workspace) {
         workspace.classList.remove("hidden-workspace");
         workspace.style.display = "flex";
-
     }
 
-    if(chatArea){
-
+    if (chatArea) {
         chatArea.classList.add("chat-active");
-
     }
 
-    if(hero){
-
+    if (hero) {
         hero.classList.add("hero-minimized");
-
     }
 
     const input = document.getElementById("message");
-
-    if(input){
-
+    if (input) {
         input.focus();
-
     }
-
 }

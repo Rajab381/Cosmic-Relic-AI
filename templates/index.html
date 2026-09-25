@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Edith AI</title>
+    <title>Cosmic Relic AI</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/style.css') }}">
@@ -37,50 +37,68 @@
 <div class="container">
 
     <!-- =====================================================
-         LEFT SIDEBAR
+         LEFT SIDEBAR / COSMIC DASHBOARD
     ====================================================== -->
 
     <aside class="sidebar" id="sidebar">
 
-        <div class="edith-brand">
+        <div class="cosmic-brand">
 
-            <div class="edith-eye">
-                <div class="eye-center"></div>
+            <div class="cosmic-emblem">
+                <div class="emblem-core"></div>
+                <div class="emblem-ring"></div>
             </div>
 
             <div>
-                <h2>EDITH</h2>
-                <p class="version">v1.0</p>
+                <h2>COSMIC RELIC</h2>
+                <p class="version">AI OS • SIX CORES</p>
             </div>
 
         </div>
 
-        <hr>
+        <hr class="sidebar-hr">
 
         <input type="file"
                id="pdfFile"
+               accept=".pdf"
+               onchange="uploadPDF()"
                hidden>
 
         <div class="upload-card"
-             onclick="document.getElementById('pdfFile').click()">
+             onclick="document.getElementById('pdfFile').click()"
+             role="button"
+             tabindex="0"
+             title="Upload PDF document for semantic RAG">
 
             <div class="upload-icon">📄</div>
 
             <h3>Upload Document</h3>
 
-            <p>PDF • DOCX • TXT</p>
+            <p id="uploadStatusText">PDF • Semantic RAG</p>
 
         </div>
 
-        <button onclick="uploadPDF()">📄 Upload PDF</button>
+        <button class="dash-btn" onclick="document.getElementById('pdfFile').click()">📄 Upload PDF</button>
 
-        <button onclick="startChat()">💬 New Chat</button>
+        <button class="dash-btn primary-btn" onclick="startChat()">💬 New Chat</button>
 
-        <button>🧠 Memory</button>
+        <button class="dash-btn" id="memBtn" onclick="inspectCore('time')">🧠 Memory</button>
 
-        <button>🧮 Tools</button>
+        <button class="dash-btn" id="toolsBtn" onclick="inspectCore('power')">🧮 Tools</button>
 
-        <button>⚙ Settings</button>
+        <button class="dash-btn" id="settingsBtn" onclick="inspectCore('mind')">⚙ Settings</button>
+
+        <div class="sidebar-cores-panel">
+            <div class="sidebar-cores-label">INTELLIGENCE CORES</div>
+            <div class="sidebar-cores-grid">
+                <button class="sidebar-core-pill" data-core="space" onclick="inspectCore('space')"><span class="pill-dot space-dot"></span>SPACE</button>
+                <button class="sidebar-core-pill" data-core="reality" onclick="inspectCore('reality')"><span class="pill-dot reality-dot"></span>REALITY</button>
+                <button class="sidebar-core-pill" data-core="power" onclick="inspectCore('power')"><span class="pill-dot power-dot"></span>POWER</button>
+                <button class="sidebar-core-pill" data-core="mind" onclick="inspectCore('mind')"><span class="pill-dot mind-dot"></span>MIND</button>
+                <button class="sidebar-core-pill" data-core="time" onclick="inspectCore('time')"><span class="pill-dot time-dot"></span>TIME</button>
+                <button class="sidebar-core-pill" data-core="soul" onclick="inspectCore('soul')"><span class="pill-dot soul-dot"></span>SOUL</button>
+            </div>
+        </div>
 
     </aside>
 
@@ -121,22 +139,27 @@
             <div class="input-box">
 
                 <button class="icon-btn"
-                        type="button">
+                        type="button"
+                        onclick="document.getElementById('pdfFile').click()"
+                        title="Attach Document">
                     📎
                 </button>
 
                 <input id="message"
                        type="text"
-                       placeholder="Ask Edith anything...">
+                       placeholder="Ask Cosmic Relic anything..."
+                       autocomplete="off">
 
                 <button class="icon-btn mic-btn"
-                        type="button">
+                        type="button"
+                        title="Voice Interface">
                     🎤
                 </button>
 
                 <button class="send-btn"
                         type="button"
-                        onclick="sendMessage()">
+                        onclick="sendMessage()"
+                        title="Send Message">
                     ➜
                 </button>
 

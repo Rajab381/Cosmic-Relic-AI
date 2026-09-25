@@ -23,12 +23,12 @@ class RAGEngine:
 
     def load_document(self):
 
-        upload_folder = Path("uploads")
+        upload_folder = Path("Uploads" if Path("Uploads").is_dir() else "uploads")
 
         pdf_files = list(upload_folder.glob("*.pdf"))
 
         if not pdf_files:
-            print("❌ No PDF Found")
+            print("[!] No PDF Found")
 
             self.loaded = False
 
@@ -43,7 +43,7 @@ class RAGEngine:
         )
 
         if not pdf_path.exists():
-            print("❌ PDF NOT FOUND")
+            print("[!] PDF NOT FOUND")
 
             print(pdf_path)
 
@@ -67,7 +67,7 @@ class RAGEngine:
 
         self.loaded = True
 
-        print("✅ PDF Loaded")
+        print("[+] PDF Loaded")
 
         return True
 

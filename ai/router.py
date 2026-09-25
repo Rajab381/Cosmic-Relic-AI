@@ -1,5 +1,8 @@
+import os
 import re
 import ollama
+
+os.environ.setdefault("OLLAMA_HOST", "http://127.0.0.1:11434")
 
 
 def classify_question(question):
@@ -51,7 +54,7 @@ def classify_question(question):
     # -------------------------
 
     prompt = f"""
-You are the routing engine of Edith AI.
+You are the routing engine of Cosmic Relic AI.
 
 Return ONLY ONE WORD.
 

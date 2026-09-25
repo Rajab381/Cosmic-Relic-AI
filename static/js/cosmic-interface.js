@@ -59,7 +59,7 @@ const cores = [
     {
         id: "space",
         name: "SPACE",
-        description: "Exploration / Astronomy",
+        description: "Spatial awareness, navigation, environments, and robotic perception.",
         color: "#42bfff",
         symbol: "✦"
     },
@@ -67,7 +67,7 @@ const cores = [
     {
         id: "reality",
         name: "REALITY",
-        description: "World / Current Events",
+        description: "Vision, sensing, observation, and interpretation of the physical world.",
         color: "#ff4f91",
         symbol: "◆"
     },
@@ -75,7 +75,7 @@ const cores = [
     {
         id: "power",
         name: "POWER",
-        description: "Engineering / Technology",
+        description: "Execution, automation, tools, and system-level actions.",
         color: "#9d5cff",
         symbol: "ϟ"
     },
@@ -83,7 +83,7 @@ const cores = [
     {
         id: "mind",
         name: "MIND",
-        description: "Knowledge / Learning",
+        description: "Reasoning, learning, analysis, and intelligent decision-making.",
         color: "#ffd34e",
         symbol: "✧"
     },
@@ -91,7 +91,7 @@ const cores = [
     {
         id: "time",
         name: "TIME",
-        description: "Future / Scenarios",
+        description: "Memory, context, history, and temporal continuity.",
         color: "#ff9b42",
         symbol: "◉"
     },
@@ -99,7 +99,7 @@ const cores = [
     {
         id: "soul",
         name: "SOUL",
-        description: "Human / Emotion",
+        description: "Interaction, personality, creativity, and human-centered assistance.",
         color: "#56e0a0",
         symbol: "◇"
     }
@@ -344,10 +344,20 @@ function createInterface() {
         SIX INTELLIGENCE CORES
     </div>
 
+    <div class="cosmic-core-hud" id="cosmicCoreHud" role="status" aria-live="polite">
+        <div class="cosmic-hud-header">
+            <span class="cosmic-hud-tag" id="hudTag">NEURAL TELEMETRY</span>
+            <span class="cosmic-hud-title" id="hudTitle">SYSTEM READY</span>
+        </div>
+        <div class="cosmic-hud-body">
+            <span class="cosmic-hud-desc" id="hudDesc">Hover or select a core to inspect neural telemetry and specialized domain intelligence.</span><span class="cosmic-hud-cursor" id="hudCursor">_</span>
+        </div>
+    </div>
+
 </div>
 
 
-<!-- Existing core container -->
+<!-- Existing core container (emptied) -->
 
 <div class="orbital-system"></div>
 
@@ -795,112 +805,16 @@ function createStellarClusters() {
 }
 
 /* =========================================================
-   SIX CORES
+   SIX CORES (REFINED ENDPOINT ARCHITECTURE)
    ========================================================= */
 
 function createCores() {
 
-    if (!orbitalSystem) {
-        return;
+    if (orbitalSystem) {
+        orbitalSystem.innerHTML = "";
     }
 
-
-    orbitalSystem.innerHTML = "";
-
-
     coreElements = [];
-
-
-    cores.forEach(
-        (core, index) => {
-
-            const element =
-                document.createElement("div");
-
-
-            element.className =
-                `cosmic-core core-${core.id}`;
-
-
-            element.dataset.core =
-                core.id;
-
-
-            element.dataset.index =
-                index;
-
-
-            element.innerHTML = `
-
-                <div class="cosmic-core-halo"></div>
-
-                <div class="cosmic-stone">
-
-                    <div class="stone-facet"></div>
-
-                    <div class="stone-facet"></div>
-
-                    <div class="stone-facet"></div>
-
-                    <div class="stone-facet"></div>
-
-                    <div class="stone-facet"></div>
-
-                    <div class="stone-inner-glow"></div>
-
-                    <div class="stone-highlight"></div>
-
-                </div>
-
-                <div class="cosmic-core-symbol">
-                    ${core.symbol}
-                </div>
-
-                <div class="cosmic-core-label">
-
-                    <span class="cosmic-core-name">
-                        ${core.name}
-                    </span>
-
-                    <span class="cosmic-core-description">
-                        ${core.description}
-                    </span>
-
-                </div>
-
-            `;
-
-
-            orbitalSystem
-                .appendChild(element);
-
-
-            coreElements.push({
-                element,
-                index,
-                phase:
-                    (
-                        Math.PI * 2
-                    ) *
-                    (
-                        index /
-                        cores.length
-                    ),
-
-                speed:
-                    0.88 +
-                    Math.random() *
-                    0.24,
-
-                radiusOffset:
-                    (
-                        Math.random() -
-                        0.5
-                    ) *
-                    20
-            });
-        }
-    );
 }
 
 
@@ -2231,30 +2145,101 @@ function createCosmicNetwork() {
 
             /*
              * ------------------------------------------------
-             * OUTER INTELLIGENCE NODE
+             * REFINED COMPACT ENDPOINT CORE STONE (PHASE 2)
              * ------------------------------------------------
              */
 
-            createNode(
-                end.x,
-                end.y,
-                5.5,
-                region.color,
-                "cosmic-network-endpoint"
-            );
+            const stoneGroup = document.createElementNS(SVG_NS, "g");
+            stoneGroup.setAttribute("class", `cosmic-endpoint-stone core-${region.id}`);
+            stoneGroup.setAttribute("data-core", region.id);
+            stoneGroup.setAttribute("transform", `translate(${end.x}, ${end.y})`);
+            stoneGroup.setAttribute("tabindex", "0");
+            stoneGroup.setAttribute("role", "button");
+            stoneGroup.setAttribute("aria-label", `${region.id.toUpperCase()} Intelligence Core`);
 
+            // Outer subtle pulse halo ring
+            const haloRing = document.createElementNS(SVG_NS, "circle");
+            haloRing.setAttribute("cx", "0");
+            haloRing.setAttribute("cy", "0");
+            haloRing.setAttribute("r", "15");
+            haloRing.setAttribute("class", "cosmic-stone-halo");
+            haloRing.setAttribute("stroke", region.color);
+            haloRing.setAttribute("fill", "none");
+            stoneGroup.appendChild(haloRing);
 
-            /*
-             * Tiny halo around endpoint.
-             */
+            // Refined Diamond Crystal Facet Path (compact ~16x22px)
+            const crystalBody = document.createElementNS(SVG_NS, "polygon");
+            crystalBody.setAttribute("points", "0,-11 8,0 0,11 -8,0");
+            crystalBody.setAttribute("class", "cosmic-crystal-body");
+            crystalBody.setAttribute("fill", `${region.color}33`);
+            crystalBody.setAttribute("stroke", region.color);
+            crystalBody.setAttribute("stroke-width", "1.5");
+            stoneGroup.appendChild(crystalBody);
 
-            createNode(
-                end.x,
-                end.y,
-                11,
-                region.color,
-                "cosmic-network-endpoint-halo"
-            );
+            // Top-right facet highlight for 3D depth
+            const facetHighlight = document.createElementNS(SVG_NS, "polygon");
+            facetHighlight.setAttribute("points", "0,-11 8,0 0,0");
+            facetHighlight.setAttribute("fill", `${region.color}66`);
+            stoneGroup.appendChild(facetHighlight);
+
+            // Internal crystal facet lines
+            const facetLines = document.createElementNS(SVG_NS, "path");
+            facetLines.setAttribute("d", "M 0 -11 L 0 11 M -8 0 L 8 0");
+            facetLines.setAttribute("stroke", "rgba(255, 255, 255, 0.65)");
+            facetLines.setAttribute("stroke-width", "0.75");
+            stoneGroup.appendChild(facetLines);
+
+            // Brilliant micro core center
+            const centerSpark = document.createElementNS(SVG_NS, "circle");
+            centerSpark.setAttribute("cx", "0");
+            centerSpark.setAttribute("cy", "0");
+            centerSpark.setAttribute("r", "2");
+            centerSpark.setAttribute("fill", "#ffffff");
+            centerSpark.setAttribute("class", "cosmic-stone-spark");
+            stoneGroup.appendChild(centerSpark);
+
+            // Core name label offset safely to avoid occlusion
+            const labelText = document.createElementNS(SVG_NS, "text");
+            labelText.setAttribute("class", "cosmic-endpoint-label");
+            labelText.textContent = region.id.toUpperCase();
+
+            if (region.id === "space") {
+                labelText.setAttribute("x", "0");
+                labelText.setAttribute("y", "-19");
+                labelText.setAttribute("text-anchor", "middle");
+            } else if (region.id === "mind") {
+                labelText.setAttribute("x", "0");
+                labelText.setAttribute("y", "24");
+                labelText.setAttribute("text-anchor", "middle");
+            } else if (region.id === "reality" || region.id === "power") {
+                labelText.setAttribute("x", "18");
+                labelText.setAttribute("y", "4");
+                labelText.setAttribute("text-anchor", "start");
+            } else {
+                labelText.setAttribute("x", "-18");
+                labelText.setAttribute("y", "4");
+                labelText.setAttribute("text-anchor", "end");
+            }
+            stoneGroup.appendChild(labelText);
+
+            // Interactive Event Handlers
+            stoneGroup.addEventListener("mouseenter", () => {
+                inspectCore(region.id);
+            });
+            stoneGroup.addEventListener("mouseleave", () => {
+                resetHUD();
+            });
+            stoneGroup.addEventListener("click", () => {
+                inspectCore(region.id);
+            });
+            stoneGroup.addEventListener("focus", () => {
+                inspectCore(region.id);
+            });
+            stoneGroup.addEventListener("blur", () => {
+                resetHUD();
+            });
+
+            nodes.appendChild(stoneGroup);
 
 
             /*
@@ -2595,220 +2580,128 @@ function updateScene() {
 
 
 /* =========================================================
-   UPDATE INDIVIDUAL CORE
+   SIX INTELLIGENCE CORES TELEMETRY & TYPING SYSTEM (PHASE 2 & 3)
    ========================================================= */
-/* =========================================================
-   UPDATE INDIVIDUAL CORE
-   ========================================================= */
-/* =========================================================
-   UPDATE INDIVIDUAL CORE
-   ========================================================= */
+
+let currentTypingTimer = null;
+let hudResetTimer = null;
+let activeCoreId = null;
 
 function updateCore(coreObject) {
+    // Large 3D orbital facet transforms retired in favor of refined SVG endpoint crystal stones.
+}
 
-    const {
-        element,
-        index
-    } = coreObject;
+function typeCoreDescription(name, desc, color) {
 
+    if (currentTypingTimer) {
+        clearTimeout(currentTypingTimer);
+        currentTypingTimer = null;
+    }
 
-    /*
-     * =====================================================
-     * TEMPORARY LAYER 7 ORBIT TEST
-     * =====================================================
-     *
-     * Six deliberately separated positions.
-     *
-     * This lets us verify that all six Cosmic Relic cores
-     * are actually being rendered by the orbital system.
-     */
+    if (hudResetTimer) {
+        clearTimeout(hudResetTimer);
+        hudResetTimer = null;
+    }
 
-    const positions = [
+    const tagEl = document.getElementById("hudTag");
+    const titleEl = document.getElementById("hudTitle");
+    const descEl = document.getElementById("hudDesc");
+    const cursorEl = document.getElementById("hudCursor");
 
-        /*
-         * SPACE
-         */
-        {
-            x: 0,
-            y: -245,
-            z: 40
-        },
+    if (!descEl || !titleEl) return;
 
-        /*
-         * REALITY
-         */
-        {
-            x: 245,
-            y: -70,
-            z: 100
-        },
+    if (tagEl) {
+        tagEl.textContent = `${name} CORE`;
+        tagEl.style.color = color || "#56e0a0";
+        tagEl.style.borderColor = color ? `${color}77` : "rgba(86, 224, 160, 0.4)";
+    }
 
-        /*
-         * POWER
-         */
-        {
-            x: 245,
-            y: 105,
-            z: 80
-        },
+    titleEl.textContent = name;
+    titleEl.style.color = color || "#ffffff";
+    titleEl.style.textShadow = color ? `0 0 16px ${color}` : "none";
 
-        /*
-         * MIND
-         */
-        {
-            x: 0,
-            y: 245,
-            z: 20
-        },
-
-        /*
-         * TIME
-         */
-        {
-            x: -245,
-            y: 105,
-            z: 80
-        },
-
-        /*
-         * SOUL
-         */
-        {
-            x: -245,
-            y: -70,
-            z: 100
-        }
-
-    ];
-
-
-    const position =
-        positions[index];
-
-
-    if (!position) {
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) {
+        descEl.textContent = desc;
+        if (cursorEl) cursorEl.style.display = "none";
         return;
     }
 
+    if (cursorEl) cursorEl.style.display = "inline";
+    descEl.textContent = "";
+    let charIndex = 0;
 
-    /*
-     * =====================================================
-     * SUBTLE MOUSE PARALLAX
-     * =====================================================
-     */
-
-    const parallaxX =
-        mouseCurrentX *
-        0.35;
-
-
-    const parallaxY =
-        mouseCurrentY *
-        0.25;
-
-
-    /*
-     * =====================================================
-     * CORE POSITION
-     * =====================================================
-     */
-
-    element.style.transform =
-        `
-        translate3d(
-            ${position.x + parallaxX}px,
-            ${position.y + parallaxY}px,
-            ${position.z}px
-        )
-        scale(0.78)
-        `;
-
-
-    /*
-     * Make every core clearly visible.
-     */
-
-    element.style.opacity =
-        "1";
-
-
-    element.style.filter =
-        "brightness(1) saturate(1)";
-
-
-    /*
-     * Proper depth ordering.
-     */
-
-    element.style.zIndex =
-        200 +
-        position.z;
-
-
-    /*
-     * =====================================================
-     * CRYSTAL ROTATION
-     * =====================================================
-     */
-
-    const stone =
-        element.querySelector(
-            ".cosmic-stone"
-        );
-
-
-    if (stone) {
-
-        stone.style.transform =
-            `
-            translate(-50%, -50%)
-            rotate(${45 + currentAngle * 25}deg)
-            skew(-8deg, -8deg)
-            `;
-
+    function step() {
+        if (charIndex < desc.length) {
+            descEl.textContent += desc.charAt(charIndex);
+            charIndex++;
+            currentTypingTimer = setTimeout(step, 14);
+        } else {
+            currentTypingTimer = null;
+        }
     }
-
-
-    /*
-     * =====================================================
-     * HALO
-     * =====================================================
-     */
-
-    const halo =
-        element.querySelector(
-            ".cosmic-core-halo"
-        );
-
-
-    if (halo) {
-
-        halo.style.opacity =
-            "0.9";
-
-    }
-
-
-    /*
-     * =====================================================
-     * LABEL
-     * =====================================================
-     */
-
-    const label =
-        element.querySelector(
-            ".cosmic-core-label"
-        );
-
-
-    if (label) {
-
-        label.style.opacity =
-            "1";
-
-    }
-
+    step();
 }
+
+function resetHUD() {
+
+    if (hudResetTimer) clearTimeout(hudResetTimer);
+
+    hudResetTimer = setTimeout(() => {
+        typeCoreDescription(
+            "SYSTEM TELEMETRY",
+            "Hover or select a core to inspect neural telemetry and specialized domain intelligence.",
+            "#56e0a0"
+        );
+        const tagEl = document.getElementById("hudTag");
+        if (tagEl) {
+            tagEl.textContent = "NEURAL TELEMETRY";
+            tagEl.style.color = "#56e0a0";
+            tagEl.style.borderColor = "rgba(86, 224, 160, 0.4)";
+        }
+        activeCoreId = null;
+        document.querySelectorAll(".cosmic-endpoint-stone").forEach(el => el.classList.remove("active-stone"));
+        document.querySelectorAll(".sidebar-core-pill").forEach(el => el.classList.remove("active-pill"));
+    }, 450);
+}
+
+function inspectCore(coreId) {
+
+    if (!coreId) return;
+    const core = cores.find(c => c.id.toLowerCase() === coreId.toLowerCase());
+    if (!core) return;
+    activeCoreId = core.id;
+
+    // Highlight SVG stone
+    document.querySelectorAll(".cosmic-endpoint-stone").forEach(el => {
+        if (el.dataset.core === core.id) {
+            el.classList.add("active-stone");
+        } else {
+            el.classList.remove("active-stone");
+        }
+    });
+
+    // Highlight sidebar pill
+    document.querySelectorAll(".sidebar-core-pill").forEach(el => {
+        if (el.dataset.core === core.id) {
+            el.classList.add("active-pill");
+        } else {
+            el.classList.remove("active-pill");
+        }
+    });
+
+    typeCoreDescription(core.name, core.description, core.color);
+}
+
+window.inspectCore = inspectCore;
+window.resetHUD = resetHUD;
+window.typeCoreDescription = typeCoreDescription;
+window.CosmicInterface = {
+    cores,
+    inspectCore,
+    resetHUD,
+    typeCoreDescription
+};
 /* =========================================================
    VISIBILITY
    ========================================================= */
