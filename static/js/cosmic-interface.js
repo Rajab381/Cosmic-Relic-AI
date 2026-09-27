@@ -143,12 +143,40 @@ let animationFrame = null;
 
 let coreElements = [];
 
+let cachedGalaxyArms = null;
+
+let cachedDustBands = null;
+
+let cachedCursorGlow = null;
+
+let cachedCosmicNetworkLayer = null;
+
+let mouseClientX = -1000;
+
+let mouseClientY = -1000;
+
+let hasPointer = false;
+
+let targetScrollProgress = 0;
+
+let currentScrollProgress = 0;
+
+let scrollProgress = 0;
+
+let isHeroInView = true;
+
+let isTabVisible = true;
+
 
 /* =========================================================
    INITIALIZATION
    ========================================================= */
 
 function initCosmicInterface() {
+
+    cachedGalaxyArms = null;
+    cachedDustBands = null;
+    cachedCursorGlow = document.querySelector(".cursor-glow");
 
     const hero = document.getElementById("hero");
 
@@ -204,10 +232,22 @@ function initCosmicInterface() {
 
     setupCoreEvents();
 
+    setupLandingScroll();
+
+    initScrollObserver();
+
     startAnimation();
 
+    setTimeout(() => {
+        typeCoreDescription(
+            "COSMIC RELIC",
+            "Local AI Operating System active. Six Intelligence Cores synchronized and operational.",
+            "#56e0a0"
+        );
+    }, 600);
+
     console.log(
-        "EDITH Cosmic Interface initialized."
+        "Cosmic Relic Interface initialized."
     );
 }
 
@@ -279,20 +319,22 @@ function createInterface() {
         viewBox="0 0 1000 700"
         preserveAspectRatio="xMidYMid meet"
         aria-hidden="true"
+        shape-rendering="geometricPrecision"
+        text-rendering="geometricPrecision"
     >
 
         <defs>
 
             <filter
                 id="cosmic-network-glow"
-                x="-50%"
-                y="-50%"
-                width="200%"
-                height="200%"
+                x="-15%"
+                y="-15%"
+                width="130%"
+                height="130%"
             >
 
                 <feGaussianBlur
-                    stdDeviation="3"
+                    stdDeviation="1.8"
                     result="blur"
                 />
 
@@ -1151,21 +1193,9 @@ function setupMouseTracking() {
                 CONFIG.mouseInfluenceY;
 
 
-            const glow =
-                document.querySelector(
-                    ".cursor-glow"
-                );
-
-
-            if (glow) {
-
-                glow.style.left =
-                    `${event.clientX}px`;
-
-                glow.style.top =
-                    `${event.clientY}px`;
-            }
-
+            mouseClientX = event.clientX;
+            mouseClientY = event.clientY;
+            hasPointer = true;
         },
         {
             passive: true
@@ -2251,11 +2281,13 @@ function createCosmicNetwork() {
             const energyPath =
                 createPath(
                     trunkPath,
-                    "cosmic-network-energy-path",
+                    `cosmic-network-energy-path core-energy-${region.id}`,
                     region.color,
                     1.8,
                     0.9
                 );
+
+            energyPath.setAttribute("data-core", region.id);
 
 
             energy.appendChild(
@@ -2414,11 +2446,15 @@ function updateScene() {
 
 
     /*
-     * Subtle mouse parallax.
-     *
-     * The main cosmic stage remains responsible
-     * for the overall scene movement.
+     * Subtle mouse parallax & Cinematic Galaxy Zoom (Phase 3).
+     * Damped delta lerp ensures liquid silk camera motion.
      */
+
+    currentScrollProgress += (targetScrollProgress - currentScrollProgress) * 0.08;
+    scrollProgress = currentScrollProgress;
+
+    const zoomScale = 1 + scrollProgress * 0.65;
+    const zoomZ = scrollProgress * 180;
 
     if (cosmicStage) {
 
@@ -2427,8 +2463,9 @@ function updateScene() {
             translate3d(
                 ${mouseCurrentX + CONFIG.mouseOffsetX}px,
                 ${mouseCurrentY + CONFIG.mouseOffsetY}px,
-                0
+                ${zoomZ}px
             )
+            scale3d(${zoomScale}, ${zoomScale}, 1)
             rotateX(
                 ${-mouseCurrentY * 0.08}deg
             )
@@ -2440,13 +2477,8 @@ function updateScene() {
 
 
     /*
-     * Layer 5 — Galactic 3D tilt.
-     *
-     * This is intentionally much weaker than the
-     * main cosmic-stage movement.
-     *
-     * The galaxy gets a subtle perspective response
-     * while the central interface remains stable.
+     * Layer 5 — Galactic 3D tilt & rotation (Unified GPU Matrix).
+     * Eliminates 5x setProperty DOM invalidations per frame.
      */
 
     if (galaxySystem) {
@@ -2459,51 +2491,40 @@ function updateScene() {
             mouseCurrentX *
             CONFIG.galaxyTiltY;
 
-
-        galaxySystem.style.setProperty(
-            '--galaxy-tilt-x',
-            `${galaxyTiltX}deg`
-        );
-
-
-        galaxySystem.style.setProperty(
-            '--galaxy-tilt-y',
-            `${galaxyTiltY}deg`
-        );
-
-
-        galaxySystem.style.setProperty(
-            '--galaxy-angle',
-            `${galaxyAngle}rad`
-        );
-
-
-        galaxySystem.style.setProperty(
-            '--arm-angle',
-            `${armAngle}rad`
-        );
-
-
-        galaxySystem.style.setProperty(
-            '--dust-angle',
-            `${dustAngle}rad`
-        );
-    }
-    /*
-     * Galaxy rotation.
-     */
-
-    if (galaxySystem) {
+        const rotZ =
+            -14 + galaxyAngle * 57.2958;
 
         galaxySystem.style.transform =
             `
-            translate(-50%, -50%)
-            rotateX(63deg)
-            rotateZ(
-                ${-14 + galaxyAngle * 57.2958}deg
-            )
+            translate3d(-50%, -50%, 0)
+            rotateX(${63 + galaxyTiltX}deg)
+            rotateY(${galaxyTiltY}deg)
+            rotateZ(${rotZ}deg)
             scale(${CONFIG.galaxyScale})
             `;
+    }
+
+    /*
+     * Hardware-accelerated cursor glow (Phase 1).
+     */
+
+    if (cachedCursorGlow && hasPointer) {
+        cachedCursorGlow.style.transform =
+            `translate3d(${mouseClientX}px, ${mouseClientY}px, 0) translate(-50%, -50%)`;
+    }
+
+    /*
+     * Dynamic neural network prominence on zoom (Phase 3).
+     */
+
+    if (!cachedCosmicNetworkLayer && cosmicInterface) {
+        cachedCosmicNetworkLayer =
+            cosmicInterface.querySelector(".cosmic-network-layer");
+    }
+
+    if (cachedCosmicNetworkLayer) {
+        cachedCosmicNetworkLayer.style.opacity =
+            (0.7 + scrollProgress * 0.3).toFixed(2);
     }
 
 
@@ -2511,28 +2532,15 @@ function updateScene() {
      * Spiral-arm movement.
      */
 
-    const arms =
-        cosmicInterface
-            ?.querySelectorAll(
-                ".galaxy-arm"
-            );
+    if (!cachedGalaxyArms && cosmicInterface) {
+        cachedGalaxyArms = cosmicInterface.querySelectorAll(".galaxy-arm");
+    }
 
-
-    if (arms) {
-
-        arms.forEach(
+    if (cachedGalaxyArms) {
+        cachedGalaxyArms.forEach(
             (arm, index) => {
-
-                const base =
-                    index * 90 + 18;
-
-                arm.style.transform =
-                    `
-                    translateY(-50%)
-                    rotate(
-                        ${base + armAngle * 57.2958}deg
-                    )
-                    `;
+                const base = index * 90 + 18;
+                arm.style.transform = `translateY(-50%) rotate(${base + armAngle * 57.2958}deg)`;
             }
         );
     }
@@ -2542,28 +2550,15 @@ function updateScene() {
      * Dust lane motion.
      */
 
-    const dustBands =
-        cosmicInterface
-            ?.querySelectorAll(
-                ".galaxy-dust-band"
-            );
+    if (!cachedDustBands && cosmicInterface) {
+        cachedDustBands = cosmicInterface.querySelectorAll(".galaxy-dust-band");
+    }
 
-
-    if (dustBands) {
-
-        dustBands.forEach(
+    if (cachedDustBands) {
+        cachedDustBands.forEach(
             (band, index) => {
-
-                const base =
-                    index * 90 + 9;
-
-                band.style.transform =
-                    `
-                    translate(-50%, -50%)
-                    rotate(
-                        ${base + dustAngle * 57.2958}deg
-                    )
-                    `;
+                const base = index * 90 + 9;
+                band.style.transform = `translate(-50%, -50%) rotate(${base + dustAngle * 57.2958}deg)`;
             }
         );
     }
@@ -2662,6 +2657,8 @@ function resetHUD() {
         activeCoreId = null;
         document.querySelectorAll(".cosmic-endpoint-stone").forEach(el => el.classList.remove("active-stone"));
         document.querySelectorAll(".sidebar-core-pill").forEach(el => el.classList.remove("active-pill"));
+        document.querySelectorAll(".cosmic-network-energy-path").forEach(el => el.classList.remove("active-energy-path"));
+        document.querySelectorAll(".core-card").forEach(el => el.classList.remove("active-card"));
     }, 450);
 }
 
@@ -2674,23 +2671,74 @@ function inspectCore(coreId) {
 
     // Highlight SVG stone
     document.querySelectorAll(".cosmic-endpoint-stone").forEach(el => {
-        if (el.dataset.core === core.id) {
-            el.classList.add("active-stone");
-        } else {
-            el.classList.remove("active-stone");
-        }
+        el.classList.toggle("active-stone", el.dataset.core === core.id);
     });
 
     // Highlight sidebar pill
     document.querySelectorAll(".sidebar-core-pill").forEach(el => {
-        if (el.dataset.core === core.id) {
-            el.classList.add("active-pill");
-        } else {
-            el.classList.remove("active-pill");
-        }
+        el.classList.toggle("active-pill", el.dataset.core === core.id);
+    });
+
+    // Highlight neural energy path in SVG (Phase 5)
+    document.querySelectorAll(".cosmic-network-energy-path").forEach(el => {
+        el.classList.toggle("active-energy-path", el.dataset.core === core.id);
+    });
+
+    // Highlight showcase card in the grid (Phase 5)
+    document.querySelectorAll(".core-card").forEach(el => {
+        el.classList.toggle("active-card", el.dataset.core === core.id);
     });
 
     typeCoreDescription(core.name, core.description, core.color);
+}
+
+/* =========================================================
+   CINEMATIC SCROLL & ZOOM OBSERVERS (PHASE 2 & 3)
+   ========================================================= */
+
+function setupLandingScroll() {
+    const landing = document.getElementById("landingScreen");
+    if (!landing) return;
+
+    landing.addEventListener("scroll", () => {
+        const scrollTop = landing.scrollTop;
+        // Cinematic zoom reaches peak after 520px of scroll
+        targetScrollProgress = Math.min(1, Math.max(0, scrollTop / 520));
+        isHeroInView = scrollTop < (landing.clientHeight + 100);
+        checkAnimationState();
+    }, { passive: true });
+}
+
+function initScrollObserver() {
+    const revealElements = document.querySelectorAll(".reveal");
+    if (!revealElements.length) return;
+
+    if (!("IntersectionObserver" in window)) {
+        revealElements.forEach(el => el.classList.add("active"));
+        return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add("active");
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: "0px 0px -30px 0px"
+    });
+
+    revealElements.forEach(el => observer.observe(el));
+}
+
+function checkAnimationState() {
+    if (isHeroInView && isTabVisible && !animationFrame) {
+        startAnimation();
+    } else if ((!isHeroInView || !isTabVisible) && animationFrame) {
+        cancelAnimationFrame(animationFrame);
+        animationFrame = null;
+    }
 }
 
 window.inspectCore = inspectCore;
@@ -2703,31 +2751,14 @@ window.CosmicInterface = {
     typeCoreDescription
 };
 /* =========================================================
-   VISIBILITY
+   VISIBILITY & PAUSE CONTROLLER (PHASE 1)
    ========================================================= */
 
 document.addEventListener(
     "visibilitychange",
     () => {
-
-        if (
-            document.hidden
-        ) {
-
-            if (animationFrame) {
-
-                cancelAnimationFrame(
-                    animationFrame
-                );
-
-                animationFrame =
-                    null;
-            }
-
-        } else {
-
-            startAnimation();
-        }
+        isTabVisible = !document.hidden;
+        checkAnimationState();
     }
 );
 

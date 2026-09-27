@@ -1,0 +1,8 @@
+{
+  "name": "Cosmic Relic AI",
+  "description": "Local AI Operating System with Six Intelligence Cores, document semantic RAG, tool calling, and cosmic neural interface.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

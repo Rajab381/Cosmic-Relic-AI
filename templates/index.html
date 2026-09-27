@@ -6,9 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Cosmic Relic AI</title>
+    <meta name="description" content="Local AI Operating System with Six Intelligence Cores, document semantic RAG, tool calling, and cosmic neural interface.">
+    <meta property="og:title" content="Cosmic Relic AI">
+    <meta property="og:description" content="Local AI Operating System with Six Intelligence Cores, document semantic RAG, tool calling, and cosmic neural interface.">
 
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/style.css') }}">
+          href="/static/css/style.css">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,6 +25,8 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 
 <body>
@@ -110,17 +115,139 @@
     <main class="chat-area"
           id="chatArea">
 
-        <div id="landingScreen">
+        <div id="landingScreen" class="landing-scroll-container">
 
-            <div class="header"
-                 id="hero">
+            <!-- =====================================================
+                 QUANTUM SCROLL DISSOLVE (THREE.JS / WEBGL) - MAIN START
+            ====================================================== -->
+            <div class="dissolve-scroll-track" id="dissolveTrack">
+                <div class="dissolve-sticky-frame" id="dissolveSticky">
+                    <canvas id="dissolveCanvas" class="dissolve-webgl-canvas"></canvas>
+                    <div class="dissolve-hud-overlay">
+                        <div class="dissolve-hud-badge">COSMIC RELIC AI</div>
+                        <div class="dissolve-hud-title">SCROLL TO COMMENCE EXPERIENCE</div>
+                        <div class="dissolve-hud-metrics">
+                            <span class="dissolve-metric" id="dissolvePercent">DISSOLVE: 0%</span>
+                            <div class="dissolve-bar-wrap">
+                                <div class="dissolve-bar-fill" id="dissolveBarFill"></div>
+                            </div>
+                            <span class="dissolve-metric" id="dissolveKernel">SURFACE INTERFACE</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                <!--
-                    cosmic-interface.js creates the entire
-                    cosmic environment inside this element.
-                -->
+            <!-- =====================================================
+                 CINEMATIC SHOWCASE SECTIONS (PHASE 2 & 3)
+            ====================================================== -->
+            <div class="cosmic-showcase-container" id="showcaseContainer">
 
-                <div class="cosmic-title-space"></div>
+                <!-- SECTION 1: SIX CORES MATRIX -->
+                <section class="showcase-section reveal reveal-fade-up" id="coresMatrixSection">
+                    <div class="section-tag">SUBSYSTEM ARCHITECTURE</div>
+                    <h2 class="section-title">SIX INTELLIGENCE CORES</h2>
+                    <p class="section-desc">Modular neural engines operating concurrently to deliver perception, calculation, and conversational persistence.</p>
+
+                    <div class="cores-showcase-grid">
+                        <!-- Space Core -->
+                        <div class="core-card reveal reveal-scale-in" data-core="space" onclick="inspectCore('space')">
+                            <div class="core-card-header">
+                                <span class="core-card-symbol" style="color: #42bfff;">✦</span>
+                                <span class="core-card-status"><span class="pill-dot space-dot"></span>ONLINE</span>
+                            </div>
+                            <h3 style="color: #42bfff;">SPACE CORE</h3>
+                            <p>Spatial awareness, 3D navigation, environment mapping, and perception telemetry.</p>
+                            <div class="core-card-action">INSPECT CORE →</div>
+                        </div>
+
+                        <!-- Reality Core -->
+                        <div class="core-card reveal reveal-scale-in" data-core="reality" onclick="inspectCore('reality')">
+                            <div class="core-card-header">
+                                <span class="core-card-symbol" style="color: #ff4f91;">◆</span>
+                                <span class="core-card-status"><span class="pill-dot reality-dot"></span>ONLINE</span>
+                            </div>
+                            <h3 style="color: #ff4f91;">REALITY CORE</h3>
+                            <p>Computer vision, observation synthesis, and multimodal physical world interpretation.</p>
+                            <div class="core-card-action">INSPECT CORE →</div>
+                        </div>
+
+                        <!-- Power Core -->
+                        <div class="core-card reveal reveal-scale-in" data-core="power" onclick="inspectCore('power')">
+                            <div class="core-card-header">
+                                <span class="core-card-symbol" style="color: #9d5cff;">ϟ</span>
+                                <span class="core-card-status"><span class="pill-dot power-dot"></span>ONLINE</span>
+                            </div>
+                            <h3 style="color: #9d5cff;">POWER CORE</h3>
+                            <p>High-precision execution, mathematical computation, tool routing, and automation.</p>
+                            <div class="core-card-action">INSPECT CORE →</div>
+                        </div>
+
+                        <!-- Mind Core -->
+                        <div class="core-card reveal reveal-scale-in" data-core="mind" onclick="inspectCore('mind')">
+                            <div class="core-card-header">
+                                <span class="core-card-symbol" style="color: #ffd34e;">✧</span>
+                                <span class="core-card-status"><span class="pill-dot mind-dot"></span>ONLINE</span>
+                            </div>
+                            <h3 style="color: #ffd34e;">MIND CORE</h3>
+                            <p>Deep algorithmic reasoning, semantic intent classification, and cognitive problem-solving.</p>
+                            <div class="core-card-action">INSPECT CORE →</div>
+                        </div>
+
+                        <!-- Time Core -->
+                        <div class="core-card reveal reveal-scale-in" data-core="time" onclick="inspectCore('time')">
+                            <div class="core-card-header">
+                                <span class="core-card-symbol" style="color: #ff9b42;">◉</span>
+                                <span class="core-card-status"><span class="pill-dot time-dot"></span>ONLINE</span>
+                            </div>
+                            <h3 style="color: #ff9b42;">TIME CORE</h3>
+                            <p>Longitudinal conversational memory, session context retention, and temporal continuity.</p>
+                            <div class="core-card-action">INSPECT CORE →</div>
+                        </div>
+
+                        <!-- Soul Core -->
+                        <div class="core-card reveal reveal-scale-in" data-core="soul" onclick="inspectCore('soul')">
+                            <div class="core-card-header">
+                                <span class="core-card-symbol" style="color: #56e0a0;">◇</span>
+                                <span class="core-card-status"><span class="pill-dot soul-dot"></span>ONLINE</span>
+                            </div>
+                            <h3 style="color: #56e0a0;">SOUL CORE</h3>
+                            <p>Empathetic interaction, ethical alignment, creative synthesis, and user-centric persona.</p>
+                            <div class="core-card-action">INSPECT CORE →</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 2: RAG & COMPUTATION OVERVIEW -->
+                <section class="showcase-section reveal reveal-fade-up" id="telemetrySection">
+                    <div class="section-tag">INTEGRATED WORKSPACE</div>
+                    <h2 class="section-title">SEMANTIC RAG & LOCAL COMPUTE</h2>
+                    <p class="section-desc">Cosmic Relic seamlessly bridges document comprehension with instantaneous mathematical execution.</p>
+
+                    <div class="features-dual-grid">
+                        <div class="feature-card reveal reveal-slide-left">
+                            <div class="feature-icon">📄</div>
+                            <h3>Semantic RAG Engine</h3>
+                            <p>Upload PDFs or documents directly into memory. Instantaneous chunking, token indexing, and context-injected retrieval ensure grounded, factual answers.</p>
+                            <button class="feature-btn" onclick="document.getElementById('pdfFile').click()">Attach PDF Document</button>
+                        </div>
+                        <div class="feature-card reveal reveal-slide-right">
+                            <div class="feature-icon">⚡</div>
+                            <h3>Power Core Computation</h3>
+                            <p>Execute arithmetic, multi-factor calculations, and system operations with real-time computation telemetry cards without hallucination.</p>
+                            <button class="feature-btn" onclick="startChat()">Enter Interactive Chat</button>
+                        </div>
+                    </div>
+
+                    <!-- LAUNCH CTA -->
+                    <div class="showcase-cta reveal reveal-scale-in">
+                        <h3>READY TO COMMENCE TRANSMISSION?</h3>
+                        <p>Engage the full neural OS across all six intelligence cores.</p>
+                        <button class="cosmic-launch-btn" onclick="startChat()">
+                            <span>INITIALIZE TERMINAL</span>
+                            <span class="btn-arrow">➜</span>
+                        </button>
+                    </div>
+                </section>
 
             </div>
 
@@ -176,9 +303,8 @@
      SCRIPTS
 ========================================================= -->
 
-<script src="{{ url_for('static', filename='js/cosmic-interface.js') }}"></script>
-
-<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script src="/static/js/scroll-dissolve.js"></script>
+<script src="/static/js/app.js"></script>
 
 <div class="cursor-glow"></div>
 

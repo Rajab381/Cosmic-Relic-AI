@@ -587,36 +587,95 @@ body {
 
 
 /* =========================================================
-   LANDING
+   LANDING & CINEMATIC SCROLL CONTAINER
    ========================================================= */
 
-#landingScreen {
+#landingScreen,
+.landing-scroll-container {
     position: absolute;
-
     inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    scroll-behavior: smooth;
+    display: block;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(86, 224, 160, 0.3) rgba(6, 15, 28, 0.4);
+}
 
-    display: flex;
+.landing-scroll-container::-webkit-scrollbar {
+    width: 6px;
+}
 
-    align-items: center;
-    justify-content: center;
+.landing-scroll-container::-webkit-scrollbar-track {
+    background: rgba(6, 15, 28, 0.4);
+}
 
-    overflow: hidden;
+.landing-scroll-container::-webkit-scrollbar-thumb {
+    background: rgba(86, 224, 160, 0.35);
+    border-radius: 4px;
 }
 
 .header {
     position: relative;
-
     width: 100%;
-    height: 100%;
-
-    min-height: 620px;
-
+    height: 100vh;
+    min-height: 640px;
     overflow: hidden;
-
     display: flex;
-
     align-items: center;
     justify-content: center;
+}
+
+.cosmic-scroll-indicator {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 250;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: rgba(6, 15, 28, 0.72);
+    border: 1px solid rgba(86, 224, 160, 0.3);
+    backdrop-filter: blur(12px);
+    transition: all 0.3s ease;
+    animation: scrollIndicatorFloat 3s ease-in-out infinite;
+}
+
+.cosmic-scroll-indicator:hover {
+    border-color: #56e0a0;
+    box-shadow: 0 0 20px rgba(86, 224, 160, 0.3);
+    transform: translateX(-50%) translateY(-2px);
+}
+
+.scroll-text {
+    font-family: "Orbitron", sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    color: #56e0a0;
+}
+
+.scroll-chevron {
+    font-size: 10px;
+    color: #8edcff;
+    animation: chevronBounce 1.8s ease-in-out infinite;
+}
+
+@keyframes scrollIndicatorFloat {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-5px); }
+}
+
+@keyframes chevronBounce {
+    0%, 100% { transform: translateY(0); opacity: 0.7; }
+    50% { transform: translateY(4px); opacity: 1; }
 }
 
 .cosmic-title-space {
@@ -4126,36 +4185,17 @@ body {
 }
 /* =========================================================
    DARKHOLD AI — LAYER 5
-   LIVE GALAXY TILT
+   LIVE GALAXY TILT (GPU TRANSFORM ACCELERATION)
 ========================================================= */
 
 .galaxy-system {
-
-    transform:
-        rotateX(
-            var(--galaxy-tilt-x, 0deg)
-        )
-        rotateY(
-            var(--galaxy-tilt-y, 0deg)
-        )
-        rotateZ(
-            var(--galaxy-angle, 0rad)
-        ) !important;
-
-}
-
-/* =========================================================
-   DARKHOLD AI — LAYER 5
-   LIVE GALAXY TILT
-========================================================= */
-.galaxy-system {
-    transform:
-        translate(-50%, -50%)
-        rotateX(var(--galaxy-tilt-x, 0deg))
-        rotateY(var(--galaxy-tilt-y, 0deg))
-        rotateZ(var(--galaxy-angle, 0rad)) !important;
-
-    transform-origin: center center !important;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform-origin: center center;
+    transform-style: preserve-3d;
+    pointer-events: none;
+    will-change: transform;
 }
 
 /* =========================================
@@ -6422,4 +6462,474 @@ body {
     background: #56e0a0 !important;
     box-shadow: 0 0 12px #56e0a0 !important;
 }
+
+/* =========================================================
+   8. CINEMATIC SCROLL REVEAL SYSTEM (PHASE 2)
+   ========================================================= */
+
+.reveal {
+    opacity: 0;
+    transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+}
+
+.reveal-fade-up {
+    transform: translate3d(0, 32px, 0);
+}
+
+.reveal-fade-in {
+    transform: translate3d(0, 0, 0);
+}
+
+.reveal-slide-left {
+    transform: translate3d(-36px, 0, 0);
+}
+
+.reveal-slide-right {
+    transform: translate3d(36px, 0, 0);
+}
+
+.reveal-scale-in {
+    transform: translate3d(0, 24px, 0) scale(0.94);
+}
+
+.reveal.active {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+}
+
+/* =========================================================
+   9. CINEMATIC SHOWCASE SECTIONS (PHASE 2 & 3)
+   ========================================================= */
+
+.cosmic-showcase-container {
+    position: relative;
+    z-index: 50;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 60px 24px 100px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 80px;
+}
+
+.showcase-section {
+    position: relative;
+    width: 100%;
+}
+
+.section-tag {
+    font-family: "Orbitron", sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    color: #56e0a0;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.section-title {
+    font-family: "Orbitron", sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #ffffff;
+    margin-bottom: 12px;
+    text-shadow: 0 0 20px rgba(86, 224, 160, 0.35);
+}
+
+.section-desc {
+    font-family: "Inter", sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #9ab4cc;
+    max-width: 640px;
+    margin-bottom: 32px;
+}
+
+/* Six Cores Showcase Grid */
+.cores-showcase-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.core-card {
+    position: relative;
+    background: rgba(7, 18, 34, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 22px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    cursor: pointer;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease, box-shadow 0.28s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.core-card:hover,
+.core-card.active-card {
+    transform: translateY(-4px) scale(1.02);
+    border-color: rgba(86, 224, 160, 0.45);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), 0 0 24px rgba(86, 224, 160, 0.16);
+}
+
+.core-card[data-core="space"]:hover { border-color: rgba(66, 191, 255, 0.6); box-shadow: 0 0 24px rgba(66, 191, 255, 0.25); }
+.core-card[data-core="reality"]:hover { border-color: rgba(255, 79, 145, 0.6); box-shadow: 0 0 24px rgba(255, 79, 145, 0.25); }
+.core-card[data-core="power"]:hover { border-color: rgba(157, 92, 255, 0.6); box-shadow: 0 0 24px rgba(157, 92, 255, 0.25); }
+.core-card[data-core="mind"]:hover { border-color: rgba(255, 211, 78, 0.6); box-shadow: 0 0 24px rgba(255, 211, 78, 0.25); }
+.core-card[data-core="time"]:hover { border-color: rgba(255, 155, 66, 0.6); box-shadow: 0 0 24px rgba(255, 155, 66, 0.25); }
+.core-card[data-core="soul"]:hover { border-color: rgba(86, 224, 160, 0.6); box-shadow: 0 0 24px rgba(86, 224, 160, 0.25); }
+
+.core-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.core-card-symbol {
+    font-size: 20px;
+}
+
+.core-card-status {
+    font-family: "Orbitron", sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    color: #7998b4;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.core-card h3 {
+    font-family: "Orbitron", sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+}
+
+.core-card p {
+    font-family: "Inter", sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #9cb2c6;
+    margin-bottom: 16px;
+    flex-grow: 1;
+}
+
+.core-card-action {
+    font-family: "Orbitron", sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: #56e0a0;
+    transition: transform 0.2s ease;
+}
+
+.core-card:hover .core-card-action {
+    transform: translateX(4px);
+}
+
+/* Dual Features Grid */
+.features-dual-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+.feature-card {
+    background: rgba(8, 20, 36, 0.75);
+    border: 1px solid rgba(86, 224, 160, 0.2);
+    border-radius: 16px;
+    padding: 28px;
+    backdrop-filter: blur(14px);
+}
+
+.feature-icon {
+    font-size: 28px;
+    margin-bottom: 14px;
+}
+
+.feature-card h3 {
+    font-family: "Orbitron", sans-serif;
+    font-size: 18px;
+    color: #ffffff;
+    margin-bottom: 10px;
+}
+
+.feature-card p {
+    font-family: "Inter", sans-serif;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: #9ab4cc;
+    margin-bottom: 20px;
+}
+
+.feature-btn {
+    font-family: "Orbitron", sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    padding: 10px 18px;
+    border-radius: 8px;
+    background: rgba(86, 224, 160, 0.12);
+    border: 1px solid rgba(86, 224, 160, 0.4);
+    color: #56e0a0;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.feature-btn:hover {
+    background: rgba(86, 224, 160, 0.25);
+    box-shadow: 0 0 16px rgba(86, 224, 160, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Showcase CTA */
+.showcase-cta {
+    background: linear-gradient(135deg, rgba(9, 24, 46, 0.85), rgba(6, 16, 30, 0.9));
+    border: 1px solid rgba(86, 224, 160, 0.35);
+    border-radius: 18px;
+    padding: 36px 28px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(86, 224, 160, 0.1);
+}
+
+.showcase-cta h3 {
+    font-family: "Orbitron", sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: #ffffff;
+    margin-bottom: 10px;
+}
+
+.showcase-cta p {
+    font-family: "Inter", sans-serif;
+    font-size: 14px;
+    color: #9ab4cc;
+    margin-bottom: 24px;
+}
+
+.cosmic-launch-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 30px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #56e0a0, #34a8d4);
+    color: #03101b;
+    font-family: "Orbitron", sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 0 25px rgba(86, 224, 160, 0.4);
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.cosmic-launch-btn:hover {
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 0 35px rgba(86, 224, 160, 0.6);
+}
+
+.btn-arrow {
+    transition: transform 0.2s ease;
+}
+
+.cosmic-launch-btn:hover .btn-arrow {
+    transform: translateX(4px);
+}
+
+/* =========================================================
+   10. ACTIVE NEURAL ENERGY PATH (PHASE 5)
+   ========================================================= */
+
+.cosmic-network-energy-path {
+    transition: stroke-width 0.3s ease, opacity 0.3s ease, filter 0.3s ease;
+}
+
+.cosmic-network-energy-path.active-energy-path {
+    stroke-width: 3.4px !important;
+    opacity: 1 !important;
+    filter: drop-shadow(0 0 8px var(--branch-color, #56e0a0)) !important;
+}
+
+/* =========================================================
+   11. REDUCED MOTION & DEVICE SAFETY (PHASE 6)
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    .particles,
+    .scan-line,
+    .shooting-star,
+    .galaxy-arm::before,
+    .galaxy-arm::after,
+    .cosmic-stone-halo,
+    .cosmic-hud-cursor,
+    .scroll-chevron,
+    .cosmic-scroll-indicator {
+        animation: none !important;
+    }
+
+    .reveal {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .cores-showcase-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .features-dual-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cosmic-showcase-container {
+        padding: 30px 16px 60px 16px;
+        gap: 50px;
+    }
+
+    .section-title {
+        font-size: 20px;
+    }
+}
+
+/* =========================================================
+   12. QUANTUM SCROLL DISSOLVE EFFECT (THREE.JS / WEBGL)
+   ========================================================= */
+
+.dissolve-scroll-track {
+    position: relative;
+    width: 100%;
+    height: 250vh;
+    margin: 0;
+    padding: 0;
+    z-index: 40;
+}
+
+.dissolve-sticky-frame {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background: radial-gradient(circle at center, #07152b 0%, #020713 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    contain: layout paint;
+}
+
+.dissolve-webgl-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.dissolve-hud-overlay {
+    position: absolute;
+    bottom: 36px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 28px;
+    border-radius: 16px;
+    background: rgba(4, 12, 24, 0.88);
+    border: 1px solid rgba(86, 224, 160, 0.4);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.65), 0 0 30px rgba(86, 224, 160, 0.16);
+    pointer-events: none;
+    text-align: center;
+    transition: border-color 0.3s ease;
+}
+
+.dissolve-hud-badge {
+    font-family: "Orbitron", sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    color: #56e0a0;
+    text-transform: uppercase;
+}
+
+.dissolve-hud-title {
+    font-family: "Orbitron", sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: #ffffff;
+    text-shadow: 0 0 12px rgba(86, 224, 160, 0.5);
+}
+
+.dissolve-hud-metrics {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 4px;
+}
+
+.dissolve-metric {
+    font-family: "Orbitron", sans-serif;
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: #8edcff;
+}
+
+.dissolve-bar-wrap {
+    width: 140px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dissolve-bar-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #56e0a0, #9d5cff);
+    border-radius: 4px;
+    transition: width 0.08s linear;
+}
+
+/* Front face smoothness optimizations */
+.cosmic-stage,
+.galaxy-system,
+.cosmic-network-layer,
+.cosmic-identity {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform-style: preserve-3d;
+}
+
 

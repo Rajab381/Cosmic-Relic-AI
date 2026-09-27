@@ -137,103 +137,119 @@ statusInterval = setInterval(() => {
     // ==========================
 
     // ========================================
-// STREAM RESPONSE
-// ========================================
+    // STREAM RESPONSE
+    // ========================================
 
-const response = await fetch("/chat_stream", {
+    try {
+        const response = await fetch("/chat_stream", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                message: message
+            })
+        });
 
-    method: "POST",
+        if (statusInterval) {
+            clearInterval(statusInterval);
+            statusInterval = null;
+        }
 
-    headers: {
+        const thinkingElem = document.getElementById("thinking");
+        if (thinkingElem) {
+            thinkingElem.remove();
+        }
 
-        "Content-Type": "application/json"
+        if (!response.ok) {
+            const errText = await response.text();
+            throw new Error(errText || "Cosmic stream connection failed.");
+        }
 
-    },
-
-    body: JSON.stringify({
-
-        message: message
-
-    })
-
-});
-
-if (statusInterval) {
-    clearInterval(statusInterval);
-    statusInterval = null;
-}
-
-const thinkingElem = document.getElementById("thinking");
-if (thinkingElem) {
-    thinkingElem.remove();
-}
-
-// Create empty AI message
-
-chat.innerHTML += `
-
-<div class="message ai-message">
-
-    <div class="avatar ai-avatar">
-
-        <div class="mini-eye">
-
-            <div class="mini-dot"></div>
-
+        // Create empty AI message container
+        chat.innerHTML += `
+        <div class="message ai-message">
+            <div class="avatar ai-avatar">
+                <div class="mini-eye">
+                    <div class="mini-dot"></div>
+                </div>
+            </div>
+            <div>
+                <div class="bubble ai-bubble streamBubble"></div>
+                <div class="time">
+                    ${time}
+                </div>
+            </div>
         </div>
+        `;
 
-    </div>
+        const bubbles = document.querySelectorAll(".streamBubble");
+        const bubble = bubbles[bubbles.length - 1];
 
-    <div>
+        if (!response.body) {
+            bubble.textContent = "No response stream received.";
+            return;
+        }
 
-        <div class="bubble ai-bubble streamBubble"></div>
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let fullText = "";
 
-        <div class="time">
+        let renderPending = false;
 
-            ${time}
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
 
+            const chunk = decoder.decode(value, { stream: true });
+            fullText += chunk;
+
+            // Throttle markdown parsing via requestAnimationFrame
+            if (!renderPending) {
+                renderPending = true;
+                requestAnimationFrame(() => {
+                    bubble.innerHTML = marked.parse(fullText);
+                    chat.scrollTop = chat.scrollHeight;
+                    renderPending = false;
+                });
+            }
+        }
+
+        // Final authoritative render and code highlight
+        bubble.innerHTML = marked.parse(fullText);
+        chat.scrollTop = chat.scrollHeight;
+        bubble.querySelectorAll("pre code").forEach((el) => {
+            hljs.highlightElement(el);
+        });
+
+    } catch (err) {
+        if (statusInterval) {
+            clearInterval(statusInterval);
+            statusInterval = null;
+        }
+        const thinkingElem = document.getElementById("thinking");
+        if (thinkingElem) {
+            thinkingElem.remove();
+        }
+
+        chat.innerHTML += `
+        <div class="message ai-message">
+            <div class="avatar ai-avatar" style="border-color: #ff4f91;">
+                <div class="mini-eye">
+                    <div class="mini-dot" style="background: #ff4f91;"></div>
+                </div>
+            </div>
+            <div>
+                <div class="bubble ai-bubble" style="border-color: rgba(255, 79, 145, 0.4);">
+                    <p style="color: #ff729f; margin: 0 0 6px 0;">⚡ <strong>[COSMIC CORE NOTICE]</strong></p>
+                    <p style="margin: 0; color: #d0e4f7;">${err.message || "An unexpected transmission error occurred."}</p>
+                </div>
+                <div class="time">${time}</div>
+            </div>
         </div>
-
-    </div>
-
-</div>
-
-`;
-
-// Always grab ONLY the newest bubble
-
-const bubbles = document.querySelectorAll(".streamBubble");
-
-const bubble = bubbles[bubbles.length - 1];
-
-const reader = response.body.getReader();
-
-const decoder = new TextDecoder();
-
-let fullText = "";
-
-while(true){
-
-    const {done,value} = await reader.read();
-
-    if(done) break;
-
-    const chunk = decoder.decode(value);
-
-    fullText += chunk;
-
-    bubble.innerHTML = marked.parse(fullText);
-
-    document.querySelectorAll("pre code").forEach((el)=>{
-
-        hljs.highlightElement(el);
-
-    });
-
-    chat.scrollTop = chat.scrollHeight;
-
-}
-
+        `;
+        chat.scrollTop = chat.scrollHeight;
+    }
 }
 async function uploadPDF() {
 
@@ -267,26 +283,54 @@ async function uploadPDF() {
             statusLabel.textContent = file.name.length > 20 ? file.name.substring(0, 18) + "..." : file.name;
         }
 
-        alert(data.message || "Document processed into Cosmic Relic RAG.");
+        showCosmicNotification(data.message || "Document processed into Cosmic Relic RAG.");
     } catch (err) {
         if (statusLabel) {
             statusLabel.textContent = "Upload failed";
         }
-        alert("Upload error: " + err.message);
+        showCosmicNotification("Upload error: " + err.message, true);
     }
 }
 
-const glow = document.querySelector(".cursor-glow");
+function showCosmicNotification(msg, isError = false) {
+    let toast = document.getElementById("cosmicToast");
+    if (!toast) {
+        toast = document.createElement("div");
+        toast.id = "cosmicToast";
+        toast.style.position = "fixed";
+        toast.style.bottom = "24px";
+        toast.style.right = "24px";
+        toast.style.padding = "12px 20px";
+        toast.style.borderRadius = "8px";
+        toast.style.zIndex = "99999";
+        toast.style.fontFamily = "'Orbitron', sans-serif";
+        toast.style.fontSize = "13px";
+        toast.style.letterSpacing = "0.08em";
+        toast.style.transition = "all 0.3s ease";
+        toast.style.boxShadow = "0 8px 32px rgba(0,0,0,0.6)";
+        document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.style.background = isError ? "rgba(255, 60, 100, 0.85)" : "rgba(10, 25, 45, 0.9)";
+    toast.style.border = isError ? "1px solid #ff4f91" : "1px solid #42bfff";
+    toast.style.color = isError ? "#ffffff" : "#42bfff";
+    toast.style.opacity = "1";
+    toast.style.transform = "translateY(0)";
+    setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(10px)";
+    }, 3500);
+}
 
-if(glow){
-
-    document.addEventListener("mousemove",(e)=>{
-
-        glow.style.left = e.clientX + "px";
-        glow.style.top  = e.clientY + "px";
-
-    });
-
+function scrollDownToOverview() {
+    const landing = document.getElementById("landingScreen");
+    const overview = document.getElementById("coresMatrixSection");
+    if (landing && overview) {
+        landing.scrollTo({
+            top: overview.offsetTop - 30,
+            behavior: "smooth"
+        });
+    }
 }
 
 function copyMessage(button){
@@ -340,11 +384,20 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function startChat() {
-
     const landing = document.getElementById("landingScreen");
     const workspace = document.getElementById("workspace");
     const chatArea = document.getElementById("chatArea");
     const hero = document.getElementById("hero");
+    const chat = document.getElementById("response");
+
+    // If already in chat, clean slate session
+    if (chatArea && chatArea.classList.contains("chat-active")) {
+        if (chat && chat.children.length > 0) {
+            chat.innerHTML = "";
+            fetch("/reset", { method: "POST" }).catch(() => {});
+            showCosmicNotification("Cosmic session reset. Time Core memory cleared.");
+        }
+    }
 
     if (landing) {
         landing.style.display = "none";
