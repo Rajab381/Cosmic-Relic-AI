@@ -140,7 +140,7 @@
         
         float dissolveMask = smoothstep(dissolveThreshold - 0.03, dissolveThreshold, normalizedDist);
         
-        vec3 edgeColor = vec3(0.35, 0.88, 1.0);
+        vec3 edgeColor = vec3(0.85, 0.88, 0.92);
         
         vec3 baseColor = mix(texColor.rgb, vec3(0.0), uGrayscale);
         vec3 finalColor = baseColor;
@@ -252,33 +252,33 @@
         canvas.height = 1024;
         const ctx = canvas.getContext("2d");
 
-        // Background dark gradient
-        const bgGrad = ctx.createRadialGradient(512, 512, 50, 512, 512, 512);
-        bgGrad.addColorStop(0, "#09243f");
-        bgGrad.addColorStop(0.5, "#041426");
-        bgGrad.addColorStop(1, "#020813");
+        // Rich monochrome dark radial background
+        const bgGrad = ctx.createRadialGradient(512, 512, 40, 512, 512, 512);
+        bgGrad.addColorStop(0, "#131418");
+        bgGrad.addColorStop(0.5, "#0b0c0f");
+        bgGrad.addColorStop(1, "#020304");
         ctx.fillStyle = bgGrad;
         ctx.fillRect(0, 0, 1024, 1024);
 
-        // Concentric geometric rings
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = "rgba(66, 191, 255, 0.35)";
+        // Concentric geometric rings — subtle graphite
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
         for (let r = 120; r <= 460; r += 55) {
             ctx.beginPath();
             ctx.arc(512, 512, r, 0, Math.PI * 2);
             ctx.stroke();
         }
 
-        // Secondary dotted ring
+        // Secondary subtle dotted ring
         ctx.setLineDash([4, 12]);
-        ctx.strokeStyle = "rgba(86, 224, 160, 0.5)";
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
         ctx.beginPath();
         ctx.arc(512, 512, 380, 0, Math.PI * 2);
         ctx.stroke();
         ctx.setLineDash([]);
 
-        // Radial coordinate lines
-        ctx.strokeStyle = "rgba(66, 191, 255, 0.25)";
+        // Radial coordinate lines — subtle graphite
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
         ctx.lineWidth = 1;
         for (let i = 0; i < 12; i++) {
             const angle = (i * Math.PI) / 6;
@@ -288,22 +288,21 @@
             ctx.stroke();
         }
 
-        // Central Hologram Core Symbol
-        ctx.shadowColor = "#56e0a0";
-        ctx.shadowBlur = 38;
+        // Central Hologram Branding — Clean Monochrome & Restrained
+        ctx.shadowColor = "rgba(255, 255, 255, 0.12)";
+        ctx.shadowBlur = 14;
         ctx.fillStyle = "#ffffff";
-        ctx.font = "900 54px 'Orbitron', monospace";
+        ctx.font = "800 50px 'Inter', sans-serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText("COSMIC RELIC AI", 512, 470);
 
-        ctx.shadowBlur = 18;
-        ctx.fillStyle = "#56e0a0";
-        ctx.font = "700 19px 'Orbitron', monospace";
-        ctx.letterSpacing = "0.18em";
-        ctx.fillText("DESIGNED AND ENGINEERED BY RAJAB", 512, 535);
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "#9ca3af";
+        ctx.font = "600 15px 'Inter', sans-serif";
+        ctx.fillText("DESIGNED AND ENGINEERED BY RAJAB", 512, 532);
 
-        // Core markers
+        // Core markers — THE SIX CONTROLLED COLORED STONES
         const coreLabels = ["SPACE", "REALITY", "POWER", "MIND", "TIME", "SOUL"];
         const coreColors = ["#42bfff", "#ff4f91", "#9d5cff", "#ffd34e", "#ff9b42", "#56e0a0"];
         for (let i = 0; i < 6; i++) {
@@ -311,15 +310,25 @@
             const x = 512 + Math.cos(angle) * 320;
             const y = 512 + Math.sin(angle) * 320;
 
+            // Vibrant stone glow (the only colored elements in the system)
             ctx.shadowColor = coreColors[i];
-            ctx.shadowBlur = 20;
+            ctx.shadowBlur = 22;
             ctx.fillStyle = coreColors[i];
             ctx.beginPath();
-            ctx.arc(x, y, 14, 0, Math.PI * 2);
+            ctx.arc(x, y, 13, 0, Math.PI * 2);
             ctx.fill();
 
-            ctx.font = "bold 13px 'Orbitron', monospace";
-            ctx.fillText(coreLabels[i], x, y + 26);
+            // Inner core gem highlight
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = "#ffffff";
+            ctx.beginPath();
+            ctx.arc(x, y, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Core label — clean soft white / light grey
+            ctx.fillStyle = "#d1d5db";
+            ctx.font = "600 12px 'Inter', sans-serif";
+            ctx.fillText(coreLabels[i], x, y + 28);
         }
 
         return canvas;
@@ -331,49 +340,50 @@
         canvas.height = 1024;
         const ctx = canvas.getContext("2d");
 
-        // Deep violet and nebula back
+        // Rich deep monochrome charcoal/black
         const bgGrad = ctx.createRadialGradient(512, 512, 40, 512, 512, 512);
-        bgGrad.addColorStop(0, "#2c0e48");
-        bgGrad.addColorStop(0.5, "#150628");
-        bgGrad.addColorStop(1, "#070210");
+        bgGrad.addColorStop(0, "#16171d");
+        bgGrad.addColorStop(0.5, "#0c0d11");
+        bgGrad.addColorStop(1, "#030305");
         ctx.fillStyle = bgGrad;
         ctx.fillRect(0, 0, 1024, 1024);
 
-        // Hexagonal flux grid
-        ctx.lineWidth = 1.5;
-        ctx.strokeStyle = "rgba(157, 92, 255, 0.3)";
+        // Subtle graphite flux grid
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
         for (let x = 64; x < 1024; x += 96) {
             for (let y = 64; y < 1024; y += 96) {
                 ctx.beginPath();
-                ctx.arc(x, y, 22, 0, Math.PI * 2);
+                ctx.arc(x, y, 18, 0, Math.PI * 2);
                 ctx.stroke();
             }
         }
 
-        // Inner golden singularity ring
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = "rgba(255, 211, 78, 0.5)";
+        // Inner singularity rings — subtle graphite
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
         ctx.beginPath();
         ctx.arc(512, 512, 280, 0, Math.PI * 2);
         ctx.stroke();
 
-        ctx.strokeStyle = "rgba(255, 79, 145, 0.6)";
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.18)";
         ctx.beginPath();
         ctx.arc(512, 512, 190, 0, Math.PI * 2);
         ctx.stroke();
 
-        // Welcome Typography
-        ctx.shadowColor = "#ffd34e";
-        ctx.shadowBlur = 50;
+        // Welcome Typography — Crisp White with Restrained Soft Glow
+        ctx.shadowColor = "rgba(255, 255, 255, 0.25)";
+        ctx.shadowBlur = 24;
         ctx.fillStyle = "#ffffff";
-        ctx.font = "900 76px 'Orbitron', monospace";
+        ctx.font = "800 68px 'Inter', sans-serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText("WELCOME", 512, 512);
 
-        // High-tech circuit brackets
-        ctx.lineWidth = 4;
-        ctx.strokeStyle = "#9d5cff";
+        // High-tech circuit brackets — restrained graphite
+        ctx.shadowBlur = 0;
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.16)";
         ctx.beginPath();
         ctx.moveTo(120, 200); ctx.lineTo(120, 120); ctx.lineTo(200, 120);
         ctx.moveTo(904, 200); ctx.lineTo(904, 120); ctx.lineTo(824, 120);
@@ -615,14 +625,27 @@
             el.classList.toggle("active-card", el.dataset.core === core.id);
         });
 
-        // Smoothly scroll down to the cores matrix section
-        const landing = document.getElementById("landingScreen");
-        const matrixSec = document.getElementById("coresMatrixSection");
-        if (landing && matrixSec) {
-            landing.scrollTo({
-                top: matrixSec.offsetTop - 30,
-                behavior: "smooth"
-            });
+        // Synchronize with Diagonal Carousel if initialized
+        if (window.diagonalCarousel && typeof window.diagonalCarousel.goToCore === "function") {
+            window.diagonalCarousel.goToCore(core.id);
+        } else {
+            // Smoothly scroll down to the cores matrix section fallback
+            const landing = document.getElementById("landingScreen");
+            const matrixSec = document.getElementById("coresMatrixSection");
+            if (landing && matrixSec) {
+                landing.scrollTo({
+                    top: matrixSec.offsetTop - 30,
+                    behavior: "smooth"
+                });
+            }
+        }
+
+        // On small screens, auto-close the drawer so the user immediately sees the core in the carousel
+        if (window.innerWidth <= 840 && typeof window.toggleSidebar === "function") {
+            const container = document.getElementById("appContainer");
+            if (container && !container.classList.contains("sidebar-collapsed")) {
+                window.toggleSidebar();
+            }
         }
 
         if (typeof showCosmicNotification === "function") {

@@ -26,7 +26,7 @@ async function runTests() {
     assert.strictEqual(res.status, 200);
     const html = await res.text();
     assert.ok(html.includes('Cosmic Relic AI'), 'Missing Cosmic Relic title');
-    assert.ok(html.includes('cosmic-interface.js'), 'Missing cosmic-interface.js');
+    assert.ok(html.includes('scroll-dissolve.js'), 'Missing scroll-dissolve.js');
     assert.ok(html.includes('app.js'), 'Missing app.js');
     assert.ok(html.includes('SIX CORES'), 'Missing six cores emblem');
   });

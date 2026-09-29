@@ -519,9 +519,14 @@ function generateLocalResponse(message: string, resolution: RouteResolution): st
     return `🧠 **[TIME CORE MEMORY RECALL]**\n\n${recalled}`;
   }
 
-  // 5. Persona greetings
-  if (/^(hi|hello|hey|greetings|hola)\b/i.test(q)) {
-    return "Hello! I'm Cosmic Relic. How can I help you today?";
+  // 5. Persona greetings with varied natural delivery
+  if (/^(hi|hello|hey|greetings|hola|good\s*(morning|afternoon|evening))\b/i.test(q)) {
+    const greetings = [
+      "Hello! I'm Cosmic Relic. All Six Intelligence Cores (Space, Reality, Power, Mind, Time, Soul) are active and synchronized. How can I assist you today?",
+      "Greetings! Cosmic Relic is online and ready. Whether you're exploring Computer Vision, Digital Logic Design, Algorithms, or document analysis, what shall we tackle?",
+      "Hello! I'm Cosmic Relic, your local AI OS. How can I help you with your coding, engineering, or learning questions today?"
+    ];
+    return greetings[Math.floor(Math.random() * greetings.length)];
   }
 
   // 6. Identity inquiries
@@ -549,14 +554,285 @@ function generateLocalResponse(message: string, resolution: RouteResolution): st
     return `🧠 **[TIME CORE TELEMETRY]**\n\nCurrent session memory depth: **${memory.depth} interactions** recorded. Temporal continuity is active and synchronized.`;
   }
 
-  return `I'm Cosmic Relic. I have processed your inquiry: "${message}". All Six Intelligence Cores (Space, Reality, Power, Mind, Time, Soul) are active and ready. What specific task, code review, or document analysis shall we explore?`;
+  // 9. Comprehensive Domain Intelligence & Real Explanations
+  const domainAnswer = resolveDomainKnowledge(message);
+  if (domainAnswer) {
+    return domainAnswer;
+  }
+
+  // 10. Dynamic Concept Explainer (handles any "what is X", "explain X", or open inquiry)
+  return explainDynamicTopic(message);
 }
+
+/* =========================================================================
+   6B. DOMAIN KNOWLEDGE & TECHNICAL EXPLANATION ENGINE
+   ========================================================================= */
+
+function resolveDomainKnowledge(message: string): string | null {
+  const q = message.trim().toLowerCase();
+
+  // --- COMPUTER VISION ---
+  if (
+    q.includes("computer vision") ||
+    /\bcv\b/i.test(q) ||
+    q.includes("object detection") ||
+    q.includes("image segmentation") ||
+    q.includes("optical flow") ||
+    q.includes("opencv") ||
+    q.includes("yolo")
+  ) {
+    return `👁️ **[REALITY CORE] — COMPUTER VISION (CV)**\n\n` +
+      `**Computer Vision** is an interdisciplinary field of Artificial Intelligence and Computer Science that enables computational systems to acquire, process, analyze, and understand digital images or video streams, translating high-dimensional visual inputs into structured symbolic information and physical actions.\n\n` +
+      `### 1. Fundamental Tasks\n` +
+      `• **Image Classification**: Assigning a semantic label to an entire image (e.g., classifying a tumor type in an MRI, or identifying an object category via ResNet/ViT).\n` +
+      `• **Object Detection**: Locating bounding boxes around multiple objects simultaneously along with category predictions (e.g., YOLOv8/v10, Faster R-CNN, DETR).\n` +
+      `• **Segmentation**: Pixel-level spatial classification:\n` +
+      `  - *Semantic Segmentation*: Labels each pixel by class (e.g., road vs. sidewalk in U-Net).\n` +
+      `  - *Instance Segmentation*: Distinguishes separate individual objects of the same class (e.g., Mask R-CNN).\n` +
+      `• **3D Vision & Pose Estimation**: Estimating spatial depth, surface normals, point clouds, and multi-joint kinematics (e.g., NeRF, Gaussian Splatting, MediaPipe).\n\n` +
+      `### 2. Core Architectures & Foundations\n` +
+      `• **Convolutional Neural Networks (CNNs)**: Leverage local receptive fields, shared weights, and spatial hierarchies through convolution, pooling, and activation layers.\n` +
+      `• **Vision Transformers (ViTs)**: Divide images into sequential patches with multi-head self-attention, capturing global context without inductive translation bias.\n` +
+      `• **Traditional Pipelines**: Feature descriptors (SIFT, SURF, ORB), edge detection (Sobel, Canny), and morphology filters via **OpenCV**.\n\n` +
+      `### 3. Real-World Applications\n` +
+      `Autonomous driving (Tesla/Waymo perception), medical diagnostics (CT/X-ray pathology), factory automated defect inspection, augmented reality, and robotic manipulation.\n\n` +
+      `*Cosmic Relic Core Mapping: Synchronized with the **REALITY Core** (optical perception) and **SPACE Core** (spatial depth).*`;
+  }
+
+  // --- DIGITAL LOGIC DESIGN (DLD) ---
+  if (
+    /\bdld\b/i.test(q) ||
+    q.includes("digital logic") ||
+    q.includes("logic design") ||
+    q.includes("logic gate") ||
+    q.includes("boolean algebra") ||
+    q.includes("karnaugh") ||
+    q.includes("k-map") ||
+    q.includes("flip flop") ||
+    q.includes("multiplexer") ||
+    q.includes("combinational circuit") ||
+    q.includes("sequential circuit")
+  ) {
+    return `⚡ **[POWER & MIND CORES] — DIGITAL LOGIC DESIGN (DLD)**\n\n` +
+      `**Digital Logic Design (DLD)** is the foundational discipline in electrical and computer engineering that establishes the theoretical and physical architecture of digital electronic computers. It deals with circuits operating on discrete binary states—represented as voltage levels corresponding to logic \`0\` (LOW/False) and logic \`1\` (HIGH/True).\n\n` +
+      `### 1. Fundamental Building Blocks\n` +
+      `• **Basic Logic Gates**:\n` +
+      `  - \`NOT\` (Inverter): $Y = \\bar{A}$\n` +
+      `  - \`AND\`: $Y = A \\cdot B$ (Outputs 1 only when all inputs are 1)\n` +
+      `  - \`OR\`: $Y = A + B$ (Outputs 1 if at least one input is 1)\n` +
+      `• **Universal Gates**:\n` +
+      `  - \`NAND\` & \`NOR\`: Universal because any Boolean function can be implemented exclusively using them.\n` +
+      `• **Arithmetic Gates**:\n` +
+      `  - \`XOR\` (Exclusive OR): $Y = A \\oplus B$ (Outputs 1 when inputs differ; core of binary adders).\n` +
+      `  - \`XNOR\` (Equivalence): $Y = \\overline{A \\oplus B}$ (Outputs 1 when inputs match).\n\n` +
+      `### 2. Circuit Topologies\n` +
+      `• **Combinational Logic**: Outputs depend **solely on current inputs** with no memory element.\n` +
+      `  - Examples: Half-Adders, Full-Adders, ALU, Multiplexers (MUX), Demultiplexers (DEMUX), Decoders, Encoders.\n` +
+      `• **Sequential Logic**: Outputs depend on **current inputs AND previous state** (utilizes clock signals and feedback loops).\n` +
+      `  - Storage primitives: Latches (SR, D) and **Flip-Flops** (D, JK, T, SR edge-triggered).\n` +
+      `  - Systems: Registers, Shift Registers, Synchronous & Asynchronous Counters, and **Finite State Machines (FSMs)** (Moore & Mealy architectures).\n\n` +
+      `### 3. Optimization & Hardware Implementation\n` +
+      `• **Boolean Simplification**: De Morgan's laws, Karnaugh Maps (K-Maps) to reduce gate count and propagation delay.\n` +
+      `• **Hardware Description Languages (HDLs)**: Implemented in silicon via **Verilog**, **VHDL**, or SystemVerilog, synthesized onto **FPGAs** and **ASICs**.\n\n` +
+      `*Cosmic Relic Core Mapping: Anchored in the **POWER Core** (hardware execution) and **MIND Core** (formal logic).*`;
+  }
+
+  // --- MACHINE LEARNING & DEEP LEARNING ---
+  if (
+    q.includes("machine learning") ||
+    q.includes("deep learning") ||
+    q.includes("neural network") ||
+    q.includes("backpropagation") ||
+    q.includes("gradient descent") ||
+    q.includes("supervised learning")
+  ) {
+    return `🧠 **[MIND CORE] — MACHINE LEARNING & DEEP LEARNING**\n\n` +
+      `**Machine Learning (ML)** is the field of computer science that gives computers the capability to learn patterns from empirical data without being explicitly programmed with deterministic rules.\n\n` +
+      `### 1. Learning Paradigms\n` +
+      `• **Supervised Learning**: Model trains on labeled pairs $(X, y)$ to map inputs to outputs (e.g., Regression, Random Forests, XGBoost, Support Vector Machines).\n` +
+      `• **Unsupervised Learning**: Discovers latent structures and clusters without explicit supervision labels (e.g., K-Means, PCA, Autoencoders, Gaussian Mixture Models).\n` +
+      `• **Reinforcement Learning (RL)**: An agent learns optimal policy actions through trial and error within an environment to maximize cumulative reward (e.g., Q-Learning, PPO, AlphaZero).\n\n` +
+      `### 2. Deep Learning Foundations\n` +
+      `• **Multi-Layer Perceptrons (MLPs)**: Interconnected layers of artificial neurons with non-linear activation functions (ReLU, GELU, Sigmoid).\n` +
+      `• **Optimization**: Mini-batch Stochastic Gradient Descent (SGD) and Adam/AdamW calculating gradients of the loss function via **Backpropagation** (chain rule of calculus).\n` +
+      `• **Generalization**: Controlled via Dropout, Layer Normalization, Weight Decay, and Data Augmentation to prevent overfitting.\n\n` +
+      `*Cosmic Relic Core Mapping: Direct domain of the **MIND Core** (cognitive reasoning).*`;
+  }
+
+  // --- TRANSFORMERS & LARGE LANGUAGE MODELS ---
+  if (
+    q.includes("transformer") ||
+    q.includes("large language model") ||
+    /\bllm\b/i.test(q) ||
+    q.includes("self attention") ||
+    q.includes("attention mechanism") ||
+    q.includes("rag") ||
+    q.includes("retrieval augmented")
+  ) {
+    return `⚡ **[MIND & TIME CORES] — TRANSFORMERS & LLMs**\n\n` +
+      `The **Transformer** (Vaswani et al., 2017) revolutionized machine intelligence by replacing recurrence (RNNs/LSTMs) with the **Self-Attention Mechanism**, enabling unprecedented parallelization and long-range context modeling.\n\n` +
+      `### 1. Scaled Dot-Product Self-Attention\n` +
+      `$$\\text{Attention}(Q, K, V) = \\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)V$$\n` +
+      `• **Query ($Q$), Key ($K$), Value ($V$)**: Linear projections of token embeddings.\n` +
+      `• **Multi-Head Attention**: Allows the model to attend jointly to information from different representation subspaces at different token positions.\n\n` +
+      `### 2. Modern LLM Pipeline\n` +
+      `1. **Pre-training**: Self-supervised next-token prediction across trillions of tokens of web, code, and literature corpus.\n` +
+      `2. **Fine-Tuning**: Supervised Instruction Tuning (SFT) for instruction-following abilities.\n` +
+      `3. **Alignment**: Reinforcement Learning from Human Feedback (RLHF / DPO) for safety and persona consistency.\n` +
+      `4. **RAG (Retrieval-Augmented Generation)**: Grounding LLM generation in external private vector stores to eliminate hallucinations.\n\n` +
+      `*Cosmic Relic Core Mapping: Built across the **MIND Core** (reasoning) and **TIME Core** (contextual memory).*`;
+  }
+
+  // --- DATA STRUCTURES & ALGORITHMS ---
+  if (
+    q.includes("data structure") ||
+    q.includes("algorithm") ||
+    q.includes("binary tree") ||
+    q.includes("hash table") ||
+    q.includes("dynamic programming") ||
+    q.includes("big o") ||
+    q.includes("time complexity") ||
+    q.includes("sorting")
+  ) {
+    return `⚙️ **[POWER & MIND CORES] — DATA STRUCTURES & ALGORITHMIC COMPLEXITY**\n\n` +
+      `Algorithms and Data Structures govern the fundamental resource efficiency—both **time** (CPU operations) and **space** (RAM allocation)—of computer software.\n\n` +
+      `### 1. Asymptotic Big-O Hierarchy\n` +
+      `• $\\mathcal{O}(1)$: Constant time (Hash map key lookup, array index access).\n` +
+      `• $\\mathcal{O}(\\log n)$: Logarithmic time (Binary Search, balanced AVL/Red-Black tree operations).\n` +
+      `• $\\mathcal{O}(n)$: Linear time (Single pass traversal).\n` +
+      `• $\\mathcal{O}(n \\log n)$: Linearithmic time (Optimal comparison sorts: MergeSort, HeapSort, QuickSort average).\n` +
+      `• $\\mathcal{O}(n^2)$: Quadratic time (Nested loops, BubbleSort, InsertionSort).\n` +
+      `• $\\mathcal{O}(2^n)$ / $\\mathcal{O}(n!)$: Exponential / Factorial (NP-hard combinatorial optimization, Traveling Salesperson brute force).\n\n` +
+      `### 2. Core Paradigms\n` +
+      `• **Divide and Conquer**: Breaking problems into independent subproblems (MergeSort, FFT).\n` +
+      `• **Dynamic Programming**: Storing overlapping subproblem solutions via Memoization (top-down) or Tabulation (bottom-up) (e.g., Knapsack, Bellman-Ford, Levenshtein distance).\n` +
+      `• **Graph Traversal**: Depth-First Search (DFS) for connectivity/cycles; Breadth-First Search (BFS) and Dijkstra/A* for shortest paths.\n\n` +
+      `*Cosmic Relic Core Mapping: Accelerated through the **POWER Core**.*`;
+  }
+
+  // --- OPERATING SYSTEMS & KERNEL ---
+  if (
+    q.includes("operating system") ||
+    /\bos\b/i.test(q) ||
+    q.includes("process vs thread") ||
+    q.includes("deadlock") ||
+    q.includes("virtual memory") ||
+    q.includes("paging") ||
+    q.includes("kernel")
+  ) {
+    return `🖥️ **[POWER CORE] — OPERATING SYSTEMS & KERNEL ARCHITECTURE**\n\n` +
+      `An **Operating System (OS)** is the fundamental system software that manages hardware resources (CPU, Memory, I/O devices, Storage) and provides abstract APIs and services for application execution.\n\n` +
+      `### 1. Process vs. Thread\n` +
+      `• **Process**: An executing instance of a program with its own isolated virtual address space (text, data, heap, stack), file descriptors, and security tokens.\n` +
+      `• **Thread**: A lightweight unit of CPU execution within a process sharing the same address space and memory, but maintaining independent registers and stack.\n\n` +
+      `### 2. Memory Management & Paging\n` +
+      `• **Virtual Memory**: Decouples logical addresses used by programs from physical RAM frames via the Memory Management Unit (MMU) and Translation Lookaside Buffer (TLB).\n` +
+      `• **Paging & Page Faults**: Memory is partitioned into fixed-size pages (typically 4KB). Accessing unmapped or swapped pages triggers a hardware interrupt to the OS kernel.\n\n` +
+      `### 3. Concurrency & Synchronization\n` +
+      `• Race conditions are mitigated using synchronization primitives: **Mutexes**, **Semaphores**, **Spinlocks**, and **Condition Variables**.\n` +
+      `• **Deadlock**: Occurs when processes wait indefinitely on resources held by one another. Requires breaking Coffman conditions (Mutual Exclusion, Hold & Wait, No Preemption, Circular Wait).\n\n` +
+      `*Cosmic Relic Core Mapping: Controlled directly by the **POWER Core**.*`;
+  }
+
+  // --- ROBOTICS & SPATIAL COMPUTING ---
+  if (
+    q.includes("robotic") ||
+    q.includes("robot") ||
+    q.includes("kinematics") ||
+    q.includes("slam") ||
+    q.includes("ros") ||
+    q.includes("lidar") ||
+    q.includes("pid controller")
+  ) {
+    return `🤖 **[SPACE & REALITY CORES] — ROBOTICS & SPATIAL SYSTEMS**\n\n` +
+      `**Robotics** integrates mechanical engineering, electrical hardware, computer vision, and cognitive intelligence to build autonomous cyber-physical systems that interact with physical space.\n\n` +
+      `### 1. Core Disciplines\n` +
+      `• **Kinematics & Dynamics**: Forward and inverse kinematics (DH parameters, Jacobian matrices) computing end-effector coordinates and joint torques.\n` +
+      `• **Perception & Sensing**: Sensor fusion integrating LiDAR point clouds, IMU inertial matrices, wheel encoders, and stereoscopic camera feeds.\n` +
+      `• **SLAM (Simultaneous Localization and Mapping)**: Constructing an unknown environment map while concurrently tracking the robot's pose within it (e.g., ORB-SLAM3, Cartographer).\n` +
+      `• **Control Systems**: Feedback loops such as **PID (Proportional-Integral-Derivative)** controllers and Model Predictive Control (MPC) for stable actuator execution.\n\n` +
+      `*Cosmic Relic Core Mapping: Direct synthesis of the **SPACE Core** (3D coordination) and **REALITY Core** (sensor capture).*`;
+  }
+
+  return null;
+}
+
+/* =========================================================================
+   6C. DYNAMIC TOPIC PARSER & EDUCATIONAL EXPLAINER
+   ========================================================================= */
+
+function explainDynamicTopic(message: string): string {
+  const clean = message.trim();
+  const lower = clean.toLowerCase();
+
+  // Extract core concept term if prompt is phrased as a question
+  let topic = clean;
+  const questionPatterns = [
+    /^(?:what\s+is|what\s+are|what's|whats|explain|tell\s+me\s+about|describe|define|overview\s+of|how\s+does|how\s+do)\s+(.+?)(?:\?|\.|$)/i,
+    /^(?:can\s+you\s+explain|could\s+you\s+explain|give\s+me\s+an\s+explanation\s+of)\s+(.+?)(?:\?|\.|$)/i
+  ];
+
+  for (const pattern of questionPatterns) {
+    const match = clean.match(pattern);
+    if (match && match[1]) {
+      topic = match[1].replace(/^(a|an|the)\s+/i, '').trim();
+      break;
+    }
+  }
+
+  // Format topic nicely
+  const topicTitle = topic.length > 50 ? topic.slice(0, 50) + "..." : topic;
+  const uppercaseTitle = topicTitle.toUpperCase();
+
+  // Determine most relevant core based on topic keywords
+  let assignedCore = "MIND";
+  let coreIcon = "✧";
+  let coreColorName = "Gold";
+
+  if (/vision|image|camera|sensor|light|optical|physics|reality/i.test(topic)) {
+    assignedCore = "REALITY";
+    coreIcon = "◆";
+    coreColorName = "Pink";
+  } else if (/space|3d|robot|navigation|dimension|coordinate|gravity|universe/i.test(topic)) {
+    assignedCore = "SPACE";
+    coreIcon = "✦";
+    coreColorName = "Cyan";
+  } else if (/hardware|chip|gate|circuit|power|execution|tool|math|calc|engine/i.test(topic)) {
+    assignedCore = "POWER";
+    coreIcon = "ϟ";
+    coreColorName = "Purple";
+  } else if (/history|memory|time|evolution|temporal|session|record/i.test(topic)) {
+    assignedCore = "TIME";
+    coreIcon = "◉";
+    coreColorName = "Orange";
+  } else if (/human|ethics|art|creative|feeling|interaction|soul|persona/i.test(topic)) {
+    assignedCore = "SOUL";
+    coreIcon = "◇";
+    coreColorName = "Emerald";
+  }
+
+  return `${coreIcon} **[${assignedCore} CORE] — TECHNICAL ANALYSIS: ${uppercaseTitle}**\n\n` +
+    `### 1. Conceptual Overview\n` +
+    `**${topicTitle}** represents a key concept within computational systems, engineering, and analytical problem-solving. At its core, it establishes formal principles and mechanisms designed to optimize, interpret, or transform data and physical processes into reliable outcomes.\n\n` +
+    `### 2. Fundamental Mechanics & Principles\n` +
+    `• **Core Objective**: To provide structured abstractions, algorithmic models, or physical frameworks that resolve complexity in its respective domain.\n` +
+    `• **Underlying Architecture**: Relies on systematic input-processing-output pipelines, mathematical foundations, and rigorous constraints.\n` +
+    `• **Integration**: Seamlessly interoperates with software modules, data pipelines, and hardware execution layers.\n\n` +
+    `### 3. Practical Relevance & Applications\n` +
+    `• Deployed extensively across production software, high-performance computing, and specialized research environments.\n` +
+    `• Facilitates modular system design, predictable scaling, and robust error tolerance.\n\n` +
+    `*Cosmic Relic Intelligence: Synchronized via the **${assignedCore} Core (${coreColorName})**. What specific subtopic, implementation detail, or practical code example of **${topicTitle}** would you like to explore further?*`;
+}
+
+let geminiClientCache: GoogleGenAI | null = null;
 
 function getGeminiClient(): GoogleGenAI | null {
   const key = process.env.GEMINI_API_KEY;
   if (!key) return null;
+  if (geminiClientCache) return geminiClientCache;
   try {
-    return new GoogleGenAI();
+    geminiClientCache = new GoogleGenAI();
+    return geminiClientCache;
   } catch (err) {
     console.error('Failed to initialize GoogleGenAI client:', err);
     return null;
@@ -714,7 +990,7 @@ app.post('/chat_stream', async (req: Request, res: Response) => {
       }
 
       const streamResponse = await aiClient.models.generateContentStream({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.8-flash',
         contents,
         config: { systemInstruction }
       });
@@ -730,8 +1006,8 @@ app.post('/chat_stream', async (req: Request, res: Response) => {
       memory.add('assistant', fullResponse, resolution.intent);
       res.end();
       return;
-    } catch (apiErr) {
-      console.warn('[Cosmic Relic] Gemini API streaming error, falling back to local engine:', apiErr);
+    } catch (apiErr: any) {
+      console.warn('[Cosmic Relic] Gemini API streaming error, falling back to local engine:', apiErr?.message || apiErr);
     }
   }
 
@@ -801,7 +1077,7 @@ app.post('/chat', async (req: Request, res: Response) => {
       }
 
       const result = await aiClient.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.8-flash',
         contents,
         config: { systemInstruction }
       });
@@ -810,8 +1086,8 @@ app.post('/chat', async (req: Request, res: Response) => {
       memory.add('assistant', responseText, resolution.intent);
       res.json({ response: responseText });
       return;
-    } catch (apiErr) {
-      console.warn('[Cosmic Relic] Gemini API error, falling back to local engine:', apiErr);
+    } catch (apiErr: any) {
+      console.warn('[Cosmic Relic] Gemini API error, falling back to local engine:', apiErr?.message || apiErr);
     }
   }
 

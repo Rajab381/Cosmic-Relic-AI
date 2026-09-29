@@ -39,73 +39,111 @@
 
 <div class="particles"></div>
 
-<div class="container">
-
-    <!-- =====================================================
-         LEFT SIDEBAR / COSMIC DASHBOARD
-    ====================================================== -->
-
-    <aside class="sidebar" id="sidebar">
-
-        <div class="cosmic-brand">
-
-            <div class="cosmic-emblem">
-                <div class="emblem-core"></div>
-                <div class="emblem-ring"></div>
-            </div>
-
-            <div>
-                <h2>COSMIC RELIC</h2>
-                <p class="version">AI OS • SIX CORES</p>
-            </div>
-
+<!-- =====================================================
+     MACOS DOCK (TOP OF WEBSITE)
+     Minimalist Mac OS Dock with Magnification, Tooltips, Separator
+====================================================== -->
+<nav class="macos-dock-container" id="macosDock" aria-label="System Dock Navigation">
+    <div class="macos-dock" id="dockPill">
+        <!-- Brand Emblem Item -->
+        <div class="dock-item" data-action="brand" data-label="Cosmic Relic • Six Cores">
+            <button class="dock-btn dock-brand-btn" onclick="showLandingScreen()" aria-label="Cosmic Relic AI Home" title="Cosmic Relic • Six Cores">
+                <div class="dock-emblem">
+                    <span class="dock-emblem-core"></span>
+                </div>
+            </button>
+            <div class="dock-tooltip">Cosmic Relic • Six Cores</div>
         </div>
 
-        <hr class="sidebar-hr">
-
-        <input type="file"
-               id="pdfFile"
-               accept=".pdf"
-               onchange="uploadPDF()"
-               hidden>
-
-        <div class="upload-card"
-             onclick="document.getElementById('pdfFile').click()"
-             role="button"
-             tabindex="0"
-             title="Upload PDF document for semantic RAG">
-
-            <div class="upload-icon">📄</div>
-
-            <h3>Upload Document</h3>
-
-            <p id="uploadStatusText">PDF • Semantic RAG</p>
-
+        <!-- Home -->
+        <div class="dock-item" data-action="home" data-label="Home">
+            <button class="dock-btn" onclick="showLandingScreen()" aria-label="Home" title="Home">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+            </button>
+            <div class="dock-tooltip">Home</div>
         </div>
 
-        <button class="dash-btn" onclick="document.getElementById('pdfFile').click()">📄 Upload PDF</button>
-
-        <button class="dash-btn primary-btn" onclick="startChat()">💬 New Chat</button>
-
-        <button class="dash-btn" id="memBtn" onclick="inspectCore('time')">🧠 Memory</button>
-
-        <button class="dash-btn" id="toolsBtn" onclick="inspectCore('power')">🧮 Tools</button>
-
-        <button class="dash-btn" id="settingsBtn" onclick="inspectCore('mind')">⚙ Settings</button>
-
-        <div class="sidebar-cores-panel">
-            <div class="sidebar-cores-label">INTELLIGENCE CORES</div>
-            <div class="sidebar-cores-grid">
-                <button class="sidebar-core-pill" data-core="space" onclick="inspectCore('space')"><span class="pill-dot space-dot"></span>SPACE</button>
-                <button class="sidebar-core-pill" data-core="reality" onclick="inspectCore('reality')"><span class="pill-dot reality-dot"></span>REALITY</button>
-                <button class="sidebar-core-pill" data-core="power" onclick="inspectCore('power')"><span class="pill-dot power-dot"></span>POWER</button>
-                <button class="sidebar-core-pill" data-core="mind" onclick="inspectCore('mind')"><span class="pill-dot mind-dot"></span>MIND</button>
-                <button class="sidebar-core-pill" data-core="time" onclick="inspectCore('time')"><span class="pill-dot time-dot"></span>TIME</button>
-                <button class="sidebar-core-pill" data-core="soul" onclick="inspectCore('soul')"><span class="pill-dot soul-dot"></span>SOUL</button>
-            </div>
+        <!-- New Chat -->
+        <div class="dock-item" data-action="chat" data-label="New Chat">
+            <button class="dock-btn dock-chat-btn" onclick="startChat()" aria-label="New Chat" title="New Chat">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    <line x1="12" y1="8" x2="12" y2="14"></line>
+                    <line x1="9" y1="11" x2="15" y2="11"></line>
+                </svg>
+            </button>
+            <div class="dock-tooltip">New Chat</div>
         </div>
 
-    </aside>
+        <!-- Upload PDF / Document -->
+        <div class="dock-item" data-action="upload" data-label="Upload PDF">
+            <button class="dock-btn" id="dockUploadBtn" onclick="document.getElementById('pdfFile').click()" aria-label="Upload PDF" title="Upload Document">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="12" y1="18" x2="12" y2="12"></line>
+                    <line x1="9" y1="15" x2="12" y2="12"></line>
+                    <line x1="15" y1="15" x2="12" y2="12"></line>
+                </svg>
+                <span class="dock-doc-badge" id="dockDocBadge" style="display:none;"></span>
+            </button>
+            <div class="dock-tooltip" id="dockUploadTooltip">Upload PDF</div>
+        </div>
+
+        <!-- Vertical Separator -->
+        <div class="dock-separator" role="separator" aria-orientation="vertical"></div>
+
+        <!-- Memory (Time Core) -->
+        <div class="dock-item" data-action="memory" data-label="Memory">
+            <button class="dock-btn" onclick="inspectCore('time')" aria-label="Memory" title="Memory Context">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+            </button>
+            <div class="dock-tooltip">Memory</div>
+        </div>
+
+        <!-- Tools (Power Core) -->
+        <div class="dock-item" data-action="tools" data-label="Tools">
+            <button class="dock-btn" onclick="inspectCore('power')" aria-label="Tools" title="Power Tools">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                    <rect x="9" y="9" width="6" height="6"></rect>
+                    <line x1="9" y1="1" x2="9" y2="4"></line>
+                    <line x1="15" y1="1" x2="15" y2="4"></line>
+                    <line x1="9" y1="20" x2="9" y2="23"></line>
+                    <line x1="15" y1="20" x2="15" y2="23"></line>
+                    <line x1="20" y1="9" x2="23" y2="9"></line>
+                    <line x1="20" y1="14" x2="23" y2="14"></line>
+                    <line x1="1" y1="9" x2="4" y2="9"></line>
+                    <line x1="1" y1="14" x2="4" y2="14"></line>
+                </svg>
+            </button>
+            <div class="dock-tooltip">Tools</div>
+        </div>
+
+        <!-- Settings (Mind Core) -->
+        <div class="dock-item" data-action="settings" data-label="Settings">
+            <button class="dock-btn" onclick="inspectCore('mind')" aria-label="Settings" title="Settings">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+            </button>
+            <div class="dock-tooltip">Settings</div>
+        </div>
+    </div>
+</nav>
+
+<!-- Hidden Document Upload Input & Status Sink -->
+<input type="file" id="pdfFile" accept=".pdf" onchange="uploadPDF()" hidden>
+<span id="uploadStatusText" style="display:none;"></span>
+
+<div class="container" id="appContainer">
 
 
     <!-- =====================================================
@@ -142,112 +180,215 @@
             ====================================================== -->
             <div class="cosmic-showcase-container" id="showcaseContainer">
 
-                <!-- SECTION 1: SIX CORES MATRIX -->
-                <section class="showcase-section reveal reveal-fade-up" id="coresMatrixSection">
-                    <div class="section-tag">SUBSYSTEM ARCHITECTURE</div>
-                    <h2 class="section-title">SIX INTELLIGENCE CORES</h2>
-                    <p class="section-desc">Modular neural engines operating concurrently to deliver perception, calculation, and conversational persistence.</p>
-
-                    <div class="cores-showcase-grid">
-                        <!-- Space Core -->
-                        <div class="core-card reveal reveal-scale-in" data-core="space" onclick="inspectCore('space')">
-                            <div class="core-card-header">
-                                <span class="core-card-symbol" style="color: #42bfff;">✦</span>
-                                <span class="core-card-status"><span class="pill-dot space-dot"></span>ONLINE</span>
+                <!-- SECTION 1: SIX CORES MATRIX (SCROLL-PINNED DIAGONAL CAROUSEL) -->
+                <section class="showcase-section cores-scroll-section" id="coresMatrixSection">
+                    <div class="cores-sticky-viewport" id="coresStickyViewport">
+                        <div class="cores-header-lockup">
+                            <div class="cores-header-meta">
+                                <span class="section-tag">SUBSYSTEM ARCHITECTURE</span>
+                                <span class="cores-scroll-badge" id="carouselStepText">CORE 01 / 06 • SPACE CORE</span>
                             </div>
-                            <h3 style="color: #42bfff;">SPACE CORE</h3>
-                            <p>Spatial awareness, 3D navigation, environment mapping, and perception telemetry.</p>
-                            <div class="core-card-action">INSPECT CORE →</div>
+                            <h2 class="section-title">SIX INTELLIGENCE CORES</h2>
+                            <p class="section-desc">Modular neural engines operating concurrently. Scroll down through this section to traverse all six cores.</p>
                         </div>
 
-                        <!-- Reality Core -->
-                        <div class="core-card reveal reveal-scale-in" data-core="reality" onclick="inspectCore('reality')">
-                            <div class="core-card-header">
-                                <span class="core-card-symbol" style="color: #ff4f91;">◆</span>
-                                <span class="core-card-status"><span class="pill-dot reality-dot"></span>ONLINE</span>
+                        <!-- 3D PERSPECTIVE CAROUSEL INTERFACE -->
+                        <div class="perspective-carousel-container" id="coresPerspectiveCarousel" role="region" aria-roledescription="carousel" aria-label="Six Intelligence Cores 3D Perspective Carousel" tabindex="0">
+                            <div class="perspective-carousel-viewport">
+                                <div class="perspective-carousel-stage" id="perspectiveStage">
+
+                                    <!-- Slide 0: Space Core -->
+                                    <div class="perspective-slide" data-index="0" data-core="space" onclick="selectPerspectiveSlide(0)">
+                                        <p class="perspective-slide-label">CORE 01 • SPATIAL PERCEPTION</p>
+                                        <div class="core-card perspective-core-card" data-core="space">
+                                            <div class="core-card-header">
+                                                <span class="core-card-symbol" style="color: #42bfff;">✦</span>
+                                                <span class="core-card-status"><span class="pill-dot space-dot"></span>ONLINE</span>
+                                            </div>
+                                            <div class="perspective-stone-visual">
+                                                <div class="perspective-stone-aura" style="border-color: rgba(66, 191, 255, 0.25);"></div>
+                                                <div class="perspective-stone-gem" style="background: #42bfff; box-shadow: 0 0 24px rgba(66, 191, 255, 0.65);">
+                                                    <span class="perspective-gem-symbol">✦</span>
+                                                </div>
+                                            </div>
+                                            <h3>SPACE CORE</h3>
+                                            <p class="core-card-desc">Spatial awareness, 3D navigation, environment mapping, and perception telemetry.</p>
+                                            <div class="core-card-action" onclick="inspectCore('space'); event.stopPropagation();">INSPECT CORE →</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Slide 1: Reality Core -->
+                                    <div class="perspective-slide" data-index="1" data-core="reality" onclick="selectPerspectiveSlide(1)">
+                                        <p class="perspective-slide-label">CORE 02 • MULTIMODAL SYNTHESIS</p>
+                                        <div class="core-card perspective-core-card" data-core="reality">
+                                            <div class="core-card-header">
+                                                <span class="core-card-symbol" style="color: #ff4f91;">◆</span>
+                                                <span class="core-card-status"><span class="pill-dot reality-dot"></span>ONLINE</span>
+                                            </div>
+                                            <div class="perspective-stone-visual">
+                                                <div class="perspective-stone-aura" style="border-color: rgba(255, 79, 145, 0.25);"></div>
+                                                <div class="perspective-stone-gem" style="background: #ff4f91; box-shadow: 0 0 24px rgba(255, 79, 145, 0.65);">
+                                                    <span class="perspective-gem-symbol">◆</span>
+                                                </div>
+                                            </div>
+                                            <h3>REALITY CORE</h3>
+                                            <p class="core-card-desc">Computer vision, observation synthesis, and multimodal physical world interpretation.</p>
+                                            <div class="core-card-action" onclick="inspectCore('reality'); event.stopPropagation();">INSPECT CORE →</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Slide 2: Power Core -->
+                                    <div class="perspective-slide" data-index="2" data-core="power" onclick="selectPerspectiveSlide(2)">
+                                        <p class="perspective-slide-label">CORE 03 • COMPUTATION & TOOLS</p>
+                                        <div class="core-card perspective-core-card" data-core="power">
+                                            <div class="core-card-header">
+                                                <span class="core-card-symbol" style="color: #9d5cff;">ϟ</span>
+                                                <span class="core-card-status"><span class="pill-dot power-dot"></span>ONLINE</span>
+                                            </div>
+                                            <div class="perspective-stone-visual">
+                                                <div class="perspective-stone-aura" style="border-color: rgba(157, 92, 255, 0.25);"></div>
+                                                <div class="perspective-stone-gem" style="background: #9d5cff; box-shadow: 0 0 24px rgba(157, 92, 255, 0.65);">
+                                                    <span class="perspective-gem-symbol">ϟ</span>
+                                                </div>
+                                            </div>
+                                            <h3>POWER CORE</h3>
+                                            <p class="core-card-desc">High-precision execution, mathematical computation, tool routing, and automation.</p>
+                                            <div class="core-card-action" onclick="inspectCore('power'); event.stopPropagation();">INSPECT CORE →</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Slide 3: Mind Core -->
+                                    <div class="perspective-slide" data-index="3" data-core="mind" onclick="selectPerspectiveSlide(3)">
+                                        <p class="perspective-slide-label">CORE 04 • ALGORITHMIC REASONING</p>
+                                        <div class="core-card perspective-core-card" data-core="mind">
+                                            <div class="core-card-header">
+                                                <span class="core-card-symbol" style="color: #ffd34e;">✧</span>
+                                                <span class="core-card-status"><span class="pill-dot mind-dot"></span>ONLINE</span>
+                                            </div>
+                                            <div class="perspective-stone-visual">
+                                                <div class="perspective-stone-aura" style="border-color: rgba(255, 211, 78, 0.25);"></div>
+                                                <div class="perspective-stone-gem" style="background: #ffd34e; box-shadow: 0 0 24px rgba(255, 211, 78, 0.65);">
+                                                    <span class="perspective-gem-symbol" style="color: #171404;">✧</span>
+                                                </div>
+                                            </div>
+                                            <h3>MIND CORE</h3>
+                                            <p class="core-card-desc">Deep algorithmic reasoning, semantic intent classification, and cognitive problem-solving.</p>
+                                            <div class="core-card-action" onclick="inspectCore('mind'); event.stopPropagation();">INSPECT CORE →</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Slide 4: Time Core -->
+                                    <div class="perspective-slide" data-index="4" data-core="time" onclick="selectPerspectiveSlide(4)">
+                                        <p class="perspective-slide-label">CORE 05 • TEMPORAL CONTINUITY</p>
+                                        <div class="core-card perspective-core-card" data-core="time">
+                                            <div class="core-card-header">
+                                                <span class="core-card-symbol" style="color: #ff9b42;">◉</span>
+                                                <span class="core-card-status"><span class="pill-dot time-dot"></span>ONLINE</span>
+                                            </div>
+                                            <div class="perspective-stone-visual">
+                                                <div class="perspective-stone-aura" style="border-color: rgba(255, 155, 66, 0.25);"></div>
+                                                <div class="perspective-stone-gem" style="background: #ff9b42; box-shadow: 0 0 24px rgba(255, 155, 66, 0.65);">
+                                                    <span class="perspective-gem-symbol">◉</span>
+                                                </div>
+                                            </div>
+                                            <h3>TIME CORE</h3>
+                                            <p class="core-card-desc">Longitudinal conversational memory, session context retention, and temporal continuity.</p>
+                                            <div class="core-card-action" onclick="inspectCore('time'); event.stopPropagation();">INSPECT CORE →</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Slide 5: Soul Core -->
+                                    <div class="perspective-slide" data-index="5" data-core="soul" onclick="selectPerspectiveSlide(5)">
+                                        <p class="perspective-slide-label">CORE 06 • ETHICAL ALIGNMENT</p>
+                                        <div class="core-card perspective-core-card" data-core="soul">
+                                            <div class="core-card-header">
+                                                <span class="core-card-symbol" style="color: #56e0a0;">◇</span>
+                                                <span class="core-card-status"><span class="pill-dot soul-dot"></span>ONLINE</span>
+                                            </div>
+                                            <div class="perspective-stone-visual">
+                                                <div class="perspective-stone-aura" style="border-color: rgba(86, 224, 160, 0.25);"></div>
+                                                <div class="perspective-stone-gem" style="background: #56e0a0; box-shadow: 0 0 24px rgba(86, 224, 160, 0.65);">
+                                                    <span class="perspective-gem-symbol" style="color: #03180d;">◇</span>
+                                                </div>
+                                            </div>
+                                            <h3>SOUL CORE</h3>
+                                            <p class="core-card-desc">Empathetic interaction, ethical alignment, creative synthesis, and user-centric persona.</p>
+                                            <div class="core-card-action" onclick="inspectCore('soul'); event.stopPropagation();">INSPECT CORE →</div>
+                                        </div>
+                                    </div>
+
+                                </div>
                             </div>
-                            <h3 style="color: #ff4f91;">REALITY CORE</h3>
-                            <p>Computer vision, observation synthesis, and multimodal physical world interpretation.</p>
-                            <div class="core-card-action">INSPECT CORE →</div>
+
+                            <!-- Controls Bar (Secondary Interaction / Fallback) -->
+                            <div class="perspective-carousel-controls">
+                                <button type="button" class="perspective-nav-btn perspective-prev-btn" id="perspectivePrevBtn" aria-label="Previous Core" onclick="prevPerspectiveSlide()">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="15 18 9 12 15 6"></polyline>
+                                    </svg>
+                                </button>
+
+                                <div class="perspective-dots-track" id="perspectiveDots">
+                                    <button type="button" class="perspective-dot" data-index="0" aria-label="Space Core" onclick="selectPerspectiveSlide(0)"></button>
+                                    <button type="button" class="perspective-dot" data-index="1" aria-label="Reality Core" onclick="selectPerspectiveSlide(1)"></button>
+                                    <button type="button" class="perspective-dot" data-index="2" aria-label="Power Core" onclick="selectPerspectiveSlide(2)"></button>
+                                    <button type="button" class="perspective-dot" data-index="3" aria-label="Mind Core" onclick="selectPerspectiveSlide(3)"></button>
+                                    <button type="button" class="perspective-dot" data-index="4" aria-label="Time Core" onclick="selectPerspectiveSlide(4)"></button>
+                                    <button type="button" class="perspective-dot" data-index="5" aria-label="Soul Core" onclick="selectPerspectiveSlide(5)"></button>
+                                </div>
+
+                                <button type="button" class="perspective-nav-btn perspective-next-btn" id="perspectiveNextBtn" aria-label="Next Core" onclick="nextPerspectiveSlide()">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="9 18 15 12 9 6"></polyline>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                </div>
+            </section>
+
+                <!-- =========================================================
+                     SECTION 2: CINEMATIC ANIMATED FOOTER (FINAL DESTINATION)
+                     Adapted from LukeBaffait Animated Footer for Cosmic Relic AI
+                     ========================================================= -->
+                <footer class="cosmic-animated-footer" id="cosmicAnimatedFooter">
+                    <!-- Subtle Ambient Backdrop & Grid -->
+                    <div class="footer-ambient-glow"></div>
+                    <div class="footer-grid-overlay"></div>
+
+                    <!-- Left ASCII Relic Artwork -->
+                    <div class="footer-ascii-wrapper footer-ascii-left">
+                        <canvas id="footerAsciiLeft" data-src="/static/images/left-relic.jpg" aria-label="Cosmic Relic Cybernetic Artifact Left"></canvas>
+                    </div>
+
+                    <!-- Right ASCII Relic Artwork -->
+                    <div class="footer-ascii-wrapper footer-ascii-right">
+                        <canvas id="footerAsciiRight" data-src="/static/images/right-relic.jpg" aria-label="Cosmic Relic Cybernetic Artifact Right"></canvas>
+                    </div>
+
+                    <!-- Center Content Container -->
+                    <div class="footer-content-inner">
+                        <!-- Massive Character-by-Character Display Heading -->
+                        <div class="footer-display-stage">
+                            <h2 class="footer-display-title" data-text="COSMIC RELIC AI">COSMIC RELIC AI</h2>
                         </div>
 
-                        <!-- Power Core -->
-                        <div class="core-card reveal reveal-scale-in" data-core="power" onclick="inspectCore('power')">
-                            <div class="core-card-header">
-                                <span class="core-card-symbol" style="color: #9d5cff;">ϟ</span>
-                                <span class="core-card-status"><span class="pill-dot power-dot"></span>ONLINE</span>
+                        <!-- Bottom Sub-Bar -->
+                        <div class="footer-bottom-bar">
+                            <div class="footer-legal">
+                                <span>© 2026 COSMIC RELIC AI</span>
+                                <span class="sep">·</span>
+                                <span>NEURAL CORE ARCHITECTURE BY RAJAB GHUFRAN</span>
+                                <span class="sep">·</span>
+                                <span>ALL RIGHTS RESERVED</span>
                             </div>
-                            <h3 style="color: #9d5cff;">POWER CORE</h3>
-                            <p>High-precision execution, mathematical computation, tool routing, and automation.</p>
-                            <div class="core-card-action">INSPECT CORE →</div>
-                        </div>
-
-                        <!-- Mind Core -->
-                        <div class="core-card reveal reveal-scale-in" data-core="mind" onclick="inspectCore('mind')">
-                            <div class="core-card-header">
-                                <span class="core-card-symbol" style="color: #ffd34e;">✧</span>
-                                <span class="core-card-status"><span class="pill-dot mind-dot"></span>ONLINE</span>
+                            <div class="footer-beacon-info">
+                                <span class="pulse-beacon"></span>
+                                <span>SIGNAL LOCKED // 1420.405 MHz</span>
                             </div>
-                            <h3 style="color: #ffd34e;">MIND CORE</h3>
-                            <p>Deep algorithmic reasoning, semantic intent classification, and cognitive problem-solving.</p>
-                            <div class="core-card-action">INSPECT CORE →</div>
-                        </div>
-
-                        <!-- Time Core -->
-                        <div class="core-card reveal reveal-scale-in" data-core="time" onclick="inspectCore('time')">
-                            <div class="core-card-header">
-                                <span class="core-card-symbol" style="color: #ff9b42;">◉</span>
-                                <span class="core-card-status"><span class="pill-dot time-dot"></span>ONLINE</span>
-                            </div>
-                            <h3 style="color: #ff9b42;">TIME CORE</h3>
-                            <p>Longitudinal conversational memory, session context retention, and temporal continuity.</p>
-                            <div class="core-card-action">INSPECT CORE →</div>
-                        </div>
-
-                        <!-- Soul Core -->
-                        <div class="core-card reveal reveal-scale-in" data-core="soul" onclick="inspectCore('soul')">
-                            <div class="core-card-header">
-                                <span class="core-card-symbol" style="color: #56e0a0;">◇</span>
-                                <span class="core-card-status"><span class="pill-dot soul-dot"></span>ONLINE</span>
-                            </div>
-                            <h3 style="color: #56e0a0;">SOUL CORE</h3>
-                            <p>Empathetic interaction, ethical alignment, creative synthesis, and user-centric persona.</p>
-                            <div class="core-card-action">INSPECT CORE →</div>
                         </div>
                     </div>
-                </section>
-
-                <!-- SECTION 2: RAG & COMPUTATION OVERVIEW -->
-                <section class="showcase-section reveal reveal-fade-up" id="telemetrySection">
-                    <div class="section-tag">INTEGRATED WORKSPACE</div>
-                    <h2 class="section-title">SEMANTIC RAG & LOCAL COMPUTE</h2>
-                    <p class="section-desc">Cosmic Relic seamlessly bridges document comprehension with instantaneous mathematical execution.</p>
-
-                    <div class="features-dual-grid">
-                        <div class="feature-card reveal reveal-slide-left">
-                            <div class="feature-icon">📄</div>
-                            <h3>Semantic RAG Engine</h3>
-                            <p>Upload PDFs or documents directly into memory. Instantaneous chunking, token indexing, and context-injected retrieval ensure grounded, factual answers.</p>
-                            <button class="feature-btn" onclick="document.getElementById('pdfFile').click()">Attach PDF Document</button>
-                        </div>
-                        <div class="feature-card reveal reveal-slide-right">
-                            <div class="feature-icon">⚡</div>
-                            <h3>Power Core Computation</h3>
-                            <p>Execute arithmetic, multi-factor calculations, and system operations with real-time computation telemetry cards without hallucination.</p>
-                            <button class="feature-btn" onclick="startChat()">Enter Interactive Chat</button>
-                        </div>
-                    </div>
-
-                    <!-- LAUNCH CTA -->
-                    <div class="showcase-cta reveal reveal-scale-in">
-                        <h3>READY TO COMMENCE TRANSMISSION?</h3>
-                        <p>Engage the full neural OS across all six intelligence cores.</p>
-                        <button class="cosmic-launch-btn" onclick="startChat()">
-                            <span>INITIALIZE TERMINAL</span>
-                            <span class="btn-arrow">➜</span>
-                        </button>
-                    </div>
-                </section>
+                </footer>
 
             </div>
 
@@ -304,6 +445,8 @@
 ========================================================= -->
 
 <script src="/static/js/scroll-dissolve.js"></script>
+<script src="/static/js/perspective-carousel.js"></script>
+<script src="/static/js/animated-footer.js"></script>
 <script src="/static/js/app.js"></script>
 
 <div class="cursor-glow"></div>

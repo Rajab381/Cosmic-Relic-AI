@@ -20,7 +20,7 @@ async function sendMessage() {
     if (!chatArea.classList.contains("chat-active")) {
 
         chatArea.classList.add("chat-active");
-        hero.classList.add("hero-minimized");
+        if (hero) hero.classList.add("hero-minimized");
     }
 
     const time = new Date().toLocaleTimeString([], {
@@ -264,8 +264,14 @@ async function uploadPDF() {
     }
 
     const statusLabel = document.getElementById("uploadStatusText");
+    const dockTooltip = document.getElementById("dockUploadTooltip");
+    const docBadge = document.getElementById("dockDocBadge");
+
     if (statusLabel) {
         statusLabel.textContent = "Uploading & Indexing...";
+    }
+    if (dockTooltip) {
+        dockTooltip.textContent = "Uploading...";
     }
 
     const formData = new FormData();
@@ -279,8 +285,16 @@ async function uploadPDF() {
 
         const data = await response.json();
 
+        const displayName = file.name.length > 20 ? file.name.substring(0, 18) + "..." : file.name;
         if (statusLabel) {
-            statusLabel.textContent = file.name.length > 20 ? file.name.substring(0, 18) + "..." : file.name;
+            statusLabel.textContent = displayName;
+        }
+        if (dockTooltip) {
+            dockTooltip.textContent = displayName;
+        }
+        if (docBadge) {
+            docBadge.style.display = "block";
+            docBadge.title = file.name;
         }
 
         showCosmicNotification(data.message || "Document processed into Cosmic Relic RAG.");
@@ -288,8 +302,32 @@ async function uploadPDF() {
         if (statusLabel) {
             statusLabel.textContent = "Upload failed";
         }
+        if (dockTooltip) {
+            dockTooltip.textContent = "Upload failed";
+        }
         showCosmicNotification("Upload error: " + err.message, true);
     }
+}
+
+function showLandingScreen() {
+    const landing = document.getElementById("landingScreen");
+    const workspace = document.getElementById("workspace");
+    const chatArea = document.getElementById("chatArea");
+    if (workspace) {
+        workspace.classList.add("hidden-workspace");
+        workspace.style.display = "none";
+    }
+    if (landing) {
+        landing.style.display = "block";
+        landing.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    if (chatArea) {
+        chatArea.classList.remove("chat-active");
+    }
+}
+
+function toggleSidebar() {
+    // Stub retained for backward compatibility
 }
 
 function showCosmicNotification(msg, isError = false) {
@@ -303,17 +341,17 @@ function showCosmicNotification(msg, isError = false) {
         toast.style.padding = "12px 20px";
         toast.style.borderRadius = "8px";
         toast.style.zIndex = "99999";
-        toast.style.fontFamily = "'Orbitron', sans-serif";
+        toast.style.fontFamily = "'Inter', sans-serif";
         toast.style.fontSize = "13px";
-        toast.style.letterSpacing = "0.08em";
-        toast.style.transition = "all 0.3s ease";
-        toast.style.boxShadow = "0 8px 32px rgba(0,0,0,0.6)";
+        toast.style.letterSpacing = "0.02em";
+        toast.style.transition = "all 0.25s ease";
+        toast.style.boxShadow = "0 12px 36px rgba(0,0,0,0.7)";
         document.body.appendChild(toast);
     }
     toast.textContent = msg;
-    toast.style.background = isError ? "rgba(255, 60, 100, 0.85)" : "rgba(10, 25, 45, 0.9)";
-    toast.style.border = isError ? "1px solid #ff4f91" : "1px solid #42bfff";
-    toast.style.color = isError ? "#ffffff" : "#42bfff";
+    toast.style.background = isError ? "rgba(35, 15, 18, 0.95)" : "rgba(18, 19, 23, 0.95)";
+    toast.style.border = isError ? "1px solid rgba(255, 79, 145, 0.45)" : "1px solid rgba(255, 255, 255, 0.14)";
+    toast.style.color = isError ? "#ff94b8" : "#f3f4f6";
     toast.style.opacity = "1";
     toast.style.transform = "translateY(0)";
     setTimeout(() => {
@@ -371,7 +409,43 @@ window.onload = () => {
     }
 };
 
+function initMacOSDock() {
+    const dock = document.getElementById("dockPill");
+    if (!dock) return;
+
+    const items = Array.from(dock.querySelectorAll(".dock-item"));
+    const maxScale = 1.34;
+    const maxDistance = 110;
+
+    dock.addEventListener("mousemove", (e) => {
+        const mouseX = e.clientX;
+        items.forEach((item) => {
+            const rect = item.getBoundingClientRect();
+            const itemCenterX = rect.left + rect.width / 2;
+            const dist = Math.abs(mouseX - itemCenterX);
+
+            if (dist < maxDistance) {
+                const norm = dist / maxDistance;
+                const factor = Math.cos(norm * (Math.PI / 2));
+                const scale = 1 + (maxScale - 1) * factor;
+                item.style.setProperty("--dock-scale", scale.toFixed(3));
+            } else {
+                item.style.setProperty("--dock-scale", "1");
+            }
+        });
+    });
+
+    dock.addEventListener("mouseleave", () => {
+        items.forEach((item) => {
+            item.style.setProperty("--dock-scale", "1");
+        });
+    });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+    // Initialize MacOS Dock magnification physics
+    initMacOSDock();
+
     const msgInput = document.getElementById("message");
     if (msgInput) {
         msgInput.addEventListener("keydown", (e) => {
