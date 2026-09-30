@@ -7,6 +7,11 @@ async function sendMessage() {
 
     if (message === "") return;
 
+    // Transition out the GlyphMatrix empty-state background on first user prompt
+    if (typeof hideGlyphMatrix === "function") {
+        hideGlyphMatrix();
+    }
+
     const chat = document.getElementById("response");
     const hero = document.getElementById("hero");
     const chatArea = document.getElementById("chatArea");
@@ -442,7 +447,52 @@ function initMacOSDock() {
     });
 }
 
+function initTheme() {
+    try {
+        const savedTheme = localStorage.getItem("cosmic_theme");
+        if (savedTheme === "light") {
+            document.documentElement.classList.add("light-theme");
+            document.body.classList.add("light-theme");
+            updateThemeUI(true);
+        } else {
+            document.documentElement.classList.remove("light-theme");
+            document.body.classList.remove("light-theme");
+            updateThemeUI(false);
+        }
+    } catch (e) {
+        updateThemeUI(false);
+    }
+}
+
+function toggleTheme() {
+    const isLight = document.documentElement.classList.toggle("light-theme");
+    document.body.classList.toggle("light-theme", isLight);
+    try {
+        localStorage.setItem("cosmic_theme", isLight ? "light" : "dark");
+    } catch (e) {}
+    updateThemeUI(isLight);
+
+    // If glyph matrix is instantiated, redraw with theme palette
+    if (window.glyphMatrixInstance && typeof window.glyphMatrixInstance.draw === "function") {
+        window.glyphMatrixInstance.draw();
+    }
+}
+
+function updateThemeUI(isLight) {
+    const tooltip = document.getElementById("dockThemeTooltip");
+    const item = document.getElementById("dockThemeItem");
+    if (tooltip) {
+        tooltip.textContent = isLight ? "Dark Mode" : "Light Mode";
+    }
+    if (item) {
+        item.setAttribute("data-label", isLight ? "Dark Mode" : "Light Mode");
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+    // Initialize Theme (Dark is default, restores Light if saved)
+    initTheme();
+
     // Initialize MacOS Dock magnification physics
     initMacOSDock();
 
@@ -470,6 +520,16 @@ function startChat() {
             chat.innerHTML = "";
             fetch("/reset", { method: "POST" }).catch(() => {});
             showCosmicNotification("Cosmic session reset. Time Core memory cleared.");
+            if (typeof showGlyphMatrix === "function") {
+                showGlyphMatrix();
+            }
+        }
+    }
+
+    // Show GlyphMatrix if chat area is empty
+    if (chat && chat.children.length === 0) {
+        if (typeof showGlyphMatrix === "function") {
+            showGlyphMatrix();
         }
     }
 

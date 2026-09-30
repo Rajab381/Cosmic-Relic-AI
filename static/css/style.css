@@ -2708,6 +2708,9 @@ body {
 }
 
 #response {
+    position: relative;
+    z-index: 20;
+
     flex: 1;
 
     min-height: 0;
@@ -2715,6 +2718,78 @@ body {
     overflow-y: auto;
 
     padding: 20px 5px 100px;
+}
+
+/* =========================================================
+   GLYPH MATRIX (EMPTY STATE BACKGROUND)
+   ========================================================= */
+
+.glyph-matrix-container {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    opacity: 1;
+    transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s ease;
+    will-change: opacity;
+}
+
+.glyph-matrix-container.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.98);
+}
+
+.glyph-matrix-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    pointer-events: none;
+}
+
+.glyph-matrix-empty-badge {
+    position: relative;
+    z-index: 12;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    border-radius: 9999px;
+    background: rgba(14, 15, 20, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    user-select: none;
+    transform: translateY(-20px);
+}
+
+.glyph-matrix-emblem {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
+    animation: glyphEmblemPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes glyphEmblemPulse {
+    0%, 100% { opacity: 0.5; transform: scale(0.9); }
+    50% { opacity: 1; transform: scale(1.15); }
+}
+
+.glyph-matrix-text {
+    font-family: "Orbitron", sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: #c9ced6;
 }
 
 
@@ -7173,6 +7248,616 @@ body {
         align-items: flex-start;
     }
 }
+
+/* =========================================================================
+   13. LIGHT MODE VISUAL THEME SYSTEM (CLASSY, WARM, CINEMATIC, EDITORIAL)
+   - Warm off-white / ivory primary background (#FAF7F2 / #F6F1E8)
+   - Deep brown primary text, borders, icons, and UI elements (#2B1E17 / #38261B)
+   - Soft skin / beige subtle accents, surfaces, and secondary details (#E8DECF)
+   - Preserves Six Core identity colors as tasteful accents in both themes
+   - Smooth Dark <-> Light theme transition
+   - Default remains Dark Mode
+   ========================================================================= */
+
+/* Theme Toggle Icons & Transitions */
+.dock-theme-btn {
+    cursor: pointer;
+}
+
+.theme-icon-sun,
+.theme-icon-moon {
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+    will-change: transform, opacity;
+}
+
+/* In Dark Mode (Default) */
+.theme-icon-sun {
+    display: block;
+}
+.theme-icon-moon {
+    display: none;
+}
+
+/* In Light Mode */
+html.light-theme .theme-icon-sun,
+body.light-theme .theme-icon-sun {
+    display: none !important;
+}
+html.light-theme .theme-icon-moon,
+body.light-theme .theme-icon-moon {
+    display: block !important;
+}
+
+/* Global Smooth Dark <-> Light Transitions */
+html,
+body,
+.macos-dock,
+.dock-btn,
+.dock-tooltip,
+.chat-area,
+.input-box,
+.bubble,
+.perspective-core-card,
+.diagonal-core-card,
+.cosmic-animated-footer,
+.perspective-carousel-controls,
+.diagonal-carousel-controls,
+.section-tag,
+.cores-scroll-badge,
+.dissolve-hud-badge,
+.glyph-matrix-empty-badge,
+.icon-btn,
+.send-btn {
+    transition: background-color 0.32s ease, background 0.32s ease, color 0.32s ease, border-color 0.32s ease, box-shadow 0.32s ease;
+}
+
+/* Base Light Mode Atmosphere */
+html.light-theme {
+    background: #FAF7F2 !important;
+}
+
+body.light-theme {
+    background: radial-gradient(
+        ellipse at center,
+        #FDFBF7 0%,
+        #F7F1E8 45%,
+        #EFE7DB 78%,
+        #E7DDD0 100%
+    ) !important;
+    color: #2B1E17 !important;
+}
+
+/* Background Grid & Atmosphere */
+html.light-theme .background-grid,
+body.light-theme .background-grid {
+    opacity: 0.55 !important;
+    background-image:
+        linear-gradient(rgba(74, 52, 35, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(74, 52, 35, 0.055) 1px, transparent 1px) !important;
+}
+
+html.light-theme .background-glow,
+body.light-theme .background-glow {
+    background: radial-gradient(
+        circle,
+        rgba(225, 205, 175, 0.35),
+        rgba(215, 195, 165, 0.12) 35%,
+        transparent 72%
+    ) !important;
+    filter: blur(80px) !important;
+}
+
+html.light-theme .scan-line,
+body.light-theme .scan-line {
+    opacity: 0.12 !important;
+    background: linear-gradient(
+        to bottom,
+        transparent 50%,
+        rgba(66, 45, 30, 0.035) 51%
+    ) !important;
+}
+
+html.light-theme .particles::before,
+html.light-theme .particles::after,
+body.light-theme .particles::before,
+body.light-theme .particles::after {
+    background: rgba(85, 62, 44, 0.22) !important;
+    box-shadow: 0 0 4px rgba(85, 62, 44, 0.18) !important;
+}
+
+html.light-theme .cursor-glow,
+body.light-theme .cursor-glow {
+    background: radial-gradient(circle, rgba(160, 125, 90, 0.09), transparent 70%) !important;
+}
+
+/* Layer 1 & Layer 2 Star Fields in Light Mode */
+html.light-theme .cosmic-star-field,
+body.light-theme .cosmic-star-field,
+html.light-theme .galactic-star-field,
+body.light-theme .galactic-star-field {
+    opacity: 0.32 !important;
+}
+
+html.light-theme .cosmic-star,
+body.light-theme .cosmic-star {
+    background: radial-gradient(
+        circle,
+        rgba(100, 70, 45, 0.88) 0%,
+        rgba(145, 105, 75, 0.42) 40%,
+        transparent 100%
+    ) !important;
+    box-shadow: 0 0 3px rgba(120, 85, 55, 0.25) !important;
+}
+
+/* MacOS Dock in Light Mode */
+html.light-theme .macos-dock,
+body.light-theme .macos-dock {
+    background: rgba(248, 244, 237, 0.88) !important;
+    backdrop-filter: blur(18px) !important;
+    -webkit-backdrop-filter: blur(18px) !important;
+    border: 1px solid rgba(66, 45, 30, 0.14) !important;
+    box-shadow:
+        0 12px 36px rgba(50, 35, 20, 0.12),
+        0 2px 8px rgba(50, 35, 20, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.85) !important;
+}
+
+html.light-theme .dock-btn,
+body.light-theme .dock-btn {
+    background: rgba(66, 45, 30, 0.045) !important;
+    border: 1px solid rgba(66, 45, 30, 0.09) !important;
+    color: #4A3528 !important;
+}
+
+html.light-theme .dock-btn:hover,
+body.light-theme .dock-btn:hover {
+    background: rgba(66, 45, 30, 0.11) !important;
+    border-color: rgba(66, 45, 30, 0.24) !important;
+    color: #1F140D !important;
+}
+
+html.light-theme .dock-btn:active,
+body.light-theme .dock-btn:active {
+    background: rgba(66, 45, 30, 0.18) !important;
+    border-color: rgba(66, 45, 30, 0.32) !important;
+    color: #1F140D !important;
+}
+
+html.light-theme .dock-brand-btn,
+body.light-theme .dock-brand-btn {
+    background: rgba(66, 45, 30, 0.07) !important;
+    border-color: rgba(66, 45, 30, 0.16) !important;
+}
+
+html.light-theme .dock-emblem,
+body.light-theme .dock-emblem {
+    background: #EAE1D3 !important;
+    border: 1px solid rgba(66, 45, 30, 0.22) !important;
+}
+
+html.light-theme .dock-emblem-core,
+body.light-theme .dock-emblem-core {
+    background: #2B1E17 !important;
+}
+
+html.light-theme .dock-separator,
+body.light-theme .dock-separator {
+    background: rgba(66, 45, 30, 0.16) !important;
+}
+
+html.light-theme .dock-tooltip,
+body.light-theme .dock-tooltip {
+    background: #FCFAF6 !important;
+    border: 1px solid rgba(66, 45, 30, 0.16) !important;
+    color: #2B1E17 !important;
+    box-shadow: 0 6px 18px rgba(50, 35, 20, 0.12) !important;
+}
+
+/* Quantum Scroll Dissolve & HUD in Light Mode */
+html.light-theme .dissolve-hud-badge,
+body.light-theme .dissolve-hud-badge {
+    background: rgba(248, 244, 237, 0.92) !important;
+    border: 1px solid rgba(66, 45, 30, 0.16) !important;
+    color: #2B1E17 !important;
+    box-shadow: 0 4px 16px rgba(50, 35, 20, 0.08) !important;
+}
+
+html.light-theme .dissolve-hud-title,
+body.light-theme .dissolve-hud-title {
+    color: #241710 !important;
+    text-shadow: 0 2px 14px rgba(66, 45, 30, 0.08) !important;
+}
+
+html.light-theme .dissolve-metric,
+body.light-theme .dissolve-metric {
+    color: #6C5849 !important;
+}
+
+html.light-theme .dissolve-bar-wrap,
+body.light-theme .dissolve-bar-wrap {
+    background: rgba(66, 45, 30, 0.10) !important;
+    border: 1px solid rgba(66, 45, 30, 0.14) !important;
+}
+
+html.light-theme .dissolve-bar-fill,
+body.light-theme .dissolve-bar-fill {
+    background: #3B281C !important;
+    box-shadow: 0 0 10px rgba(66, 45, 30, 0.25) !important;
+}
+
+/* Showcase Headers, Titles & Metadata in Light Mode */
+html.light-theme .section-tag,
+body.light-theme .section-tag {
+    background: rgba(66, 45, 30, 0.05) !important;
+    border: 1px solid rgba(66, 45, 30, 0.12) !important;
+    color: #5C4738 !important;
+}
+
+html.light-theme .cores-scroll-badge,
+body.light-theme .cores-scroll-badge {
+    background: rgba(66, 45, 30, 0.06) !important;
+    border: 1px solid rgba(66, 45, 30, 0.14) !important;
+    color: #4A3629 !important;
+}
+
+html.light-theme .section-title,
+body.light-theme .section-title {
+    color: #1F140D !important;
+}
+
+html.light-theme .section-desc,
+body.light-theme .section-desc {
+    color: #614F41 !important;
+}
+
+/* Six Intelligence Cores & 3D Perspective Carousel in Light Mode */
+html.light-theme .perspective-slide-label,
+body.light-theme .perspective-slide-label,
+html.light-theme .diagonal-slide-label,
+body.light-theme .diagonal-slide-label {
+    color: #6E5A4B !important;
+}
+
+html.light-theme .perspective-core-card,
+body.light-theme .perspective-core-card,
+html.light-theme .diagonal-core-card,
+body.light-theme .diagonal-core-card {
+    background: rgba(248, 244, 237, 0.95) !important;
+    border: 1px solid rgba(66, 45, 30, 0.12) !important;
+    box-shadow: 0 16px 40px rgba(60, 40, 25, 0.09) !important;
+    color: #2B1E17 !important;
+}
+
+html.light-theme .perspective-core-card h3,
+body.light-theme .perspective-core-card h3,
+html.light-theme .diagonal-core-card h3,
+body.light-theme .diagonal-core-card h3 {
+    color: #1E140D !important;
+}
+
+html.light-theme .core-card-desc,
+body.light-theme .core-card-desc {
+    color: #5A4739 !important;
+}
+
+html.light-theme .core-card-header .core-card-status,
+body.light-theme .core-card-header .core-card-status {
+    color: #6C594A !important;
+}
+
+html.light-theme .core-card-action,
+body.light-theme .core-card-action {
+    color: #38261B !important;
+    border-top: 1px solid rgba(66, 45, 30, 0.10) !important;
+}
+
+html.light-theme .perspective-stone-aura,
+body.light-theme .perspective-stone-aura,
+html.light-theme .diagonal-stone-aura,
+body.light-theme .diagonal-stone-aura {
+    border: 1px dashed rgba(66, 45, 30, 0.25) !important;
+}
+
+html.light-theme .perspective-slide.is-active .perspective-core-card,
+body.light-theme .perspective-slide.is-active .perspective-core-card,
+html.light-theme .diagonal-slide.is-active .diagonal-core-card,
+body.light-theme .diagonal-slide.is-active .diagonal-core-card {
+    background: rgba(253, 250, 245, 0.98) !important;
+    border-color: rgba(66, 45, 30, 0.28) !important;
+    box-shadow: 0 24px 60px rgba(60, 40, 25, 0.14), 0 0 24px rgba(66, 45, 30, 0.06) !important;
+}
+
+/* Preserving 6 Core Identity Colors as Tasteful Accents in Light Mode */
+html.light-theme .perspective-slide.is-active .perspective-core-card[data-core="space"],
+body.light-theme .perspective-slide.is-active .perspective-core-card[data-core="space"] {
+    border-color: rgba(0, 132, 199, 0.65) !important;
+    box-shadow: 0 24px 60px rgba(60, 40, 25, 0.13), 0 0 26px rgba(0, 132, 199, 0.15) !important;
+}
+
+html.light-theme .perspective-slide.is-active .perspective-core-card[data-core="reality"],
+body.light-theme .perspective-slide.is-active .perspective-core-card[data-core="reality"] {
+    border-color: rgba(217, 32, 102, 0.65) !important;
+    box-shadow: 0 24px 60px rgba(60, 40, 25, 0.13), 0 0 26px rgba(217, 32, 102, 0.15) !important;
+}
+
+html.light-theme .perspective-slide.is-active .perspective-core-card[data-core="power"],
+body.light-theme .perspective-slide.is-active .perspective-core-card[data-core="power"] {
+    border-color: rgba(120, 52, 207, 0.65) !important;
+    box-shadow: 0 24px 60px rgba(60, 40, 25, 0.13), 0 0 26px rgba(120, 52, 207, 0.15) !important;
+}
+
+html.light-theme .perspective-slide.is-active .perspective-core-card[data-core="mind"],
+body.light-theme .perspective-slide.is-active .perspective-core-card[data-core="mind"] {
+    border-color: rgba(184, 122, 4, 0.65) !important;
+    box-shadow: 0 24px 60px rgba(60, 40, 25, 0.13), 0 0 26px rgba(184, 122, 4, 0.15) !important;
+}
+
+html.light-theme .perspective-slide.is-active .perspective-core-card[data-core="time"],
+body.light-theme .perspective-slide.is-active .perspective-core-card[data-core="time"] {
+    border-color: rgba(201, 92, 8, 0.65) !important;
+    box-shadow: 0 24px 60px rgba(60, 40, 25, 0.13), 0 0 26px rgba(201, 92, 8, 0.15) !important;
+}
+
+html.light-theme .perspective-slide.is-active .perspective-core-card[data-core="soul"],
+body.light-theme .perspective-slide.is-active .perspective-core-card[data-core="soul"] {
+    border-color: rgba(15, 156, 93, 0.65) !important;
+    box-shadow: 0 24px 60px rgba(60, 40, 25, 0.13), 0 0 26px rgba(15, 156, 93, 0.15) !important;
+}
+
+/* Perspective Carousel Controls in Light Mode */
+html.light-theme .perspective-carousel-controls,
+body.light-theme .perspective-carousel-controls,
+html.light-theme .diagonal-carousel-controls,
+body.light-theme .diagonal-carousel-controls {
+    background: rgba(248, 244, 237, 0.92) !important;
+    border: 1px solid rgba(66, 45, 30, 0.14) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    box-shadow: 0 8px 24px rgba(50, 35, 20, 0.10) !important;
+}
+
+html.light-theme .perspective-nav-btn,
+body.light-theme .perspective-nav-btn,
+html.light-theme .diagonal-nav-btn,
+body.light-theme .diagonal-nav-btn {
+    background: rgba(66, 45, 30, 0.05) !important;
+    border: 1px solid rgba(66, 45, 30, 0.10) !important;
+    color: #3D2B1F !important;
+}
+
+html.light-theme .perspective-nav-btn:hover,
+body.light-theme .perspective-nav-btn:hover,
+html.light-theme .diagonal-nav-btn:hover,
+body.light-theme .diagonal-nav-btn:hover {
+    background: rgba(66, 45, 30, 0.12) !important;
+    color: #1F140D !important;
+}
+
+html.light-theme .perspective-dot,
+body.light-theme .perspective-dot,
+html.light-theme .diagonal-dot,
+body.light-theme .diagonal-dot {
+    background: rgba(66, 45, 30, 0.20) !important;
+}
+
+html.light-theme .perspective-dot.is-active,
+body.light-theme .perspective-dot.is-active,
+html.light-theme .diagonal-dot.is-active,
+body.light-theme .diagonal-dot.is-active {
+    background: #2E1F16 !important;
+}
+
+/* Cinematic Animated Footer in Light Mode */
+html.light-theme .cosmic-animated-footer,
+body.light-theme .cosmic-animated-footer {
+    background: #EFE8DD !important;
+    border-top: 1px solid rgba(66, 45, 30, 0.14) !important;
+    border-bottom: 1px solid rgba(66, 45, 30, 0.08) !important;
+    box-shadow: 0 24px 70px rgba(50, 35, 20, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+}
+
+html.light-theme .footer-ambient-glow,
+body.light-theme .footer-ambient-glow {
+    background: radial-gradient(circle at 50% 110%, rgba(220, 205, 180, 0.45) 0%, transparent 65%) !important;
+}
+
+html.light-theme .footer-grid-overlay,
+body.light-theme .footer-grid-overlay {
+    background-image: radial-gradient(rgba(66, 45, 30, 0.08) 1px, transparent 1px) !important;
+    opacity: 0.45 !important;
+}
+
+html.light-theme .footer-display-title,
+body.light-theme .footer-display-title {
+    color: #241710 !important;
+    text-shadow: 0 2px 25px rgba(66, 45, 30, 0.12) !important;
+}
+
+html.light-theme .relic-char-inner,
+body.light-theme .relic-char-inner {
+    color: #241710 !important;
+}
+
+html.light-theme .footer-bottom-bar,
+body.light-theme .footer-bottom-bar {
+    border-top: 1px solid rgba(66, 45, 30, 0.12) !important;
+    color: #6E5B4D !important;
+}
+
+html.light-theme .footer-beacon-info,
+body.light-theme .footer-beacon-info {
+    color: #5A4739 !important;
+}
+
+html.light-theme .footer-ascii-wrapper canvas,
+body.light-theme .footer-ascii-wrapper canvas {
+    filter: invert(0.88) sepia(0.55) hue-rotate(330deg) brightness(0.68) contrast(1.15) !important;
+}
+
+/* Chat Workspace, Input Box & Glyph Matrix in Light Mode */
+html.light-theme .glyph-matrix-empty-badge,
+body.light-theme .glyph-matrix-empty-badge {
+    background: rgba(248, 244, 237, 0.95) !important;
+    border: 1px solid rgba(66, 45, 30, 0.14) !important;
+    color: #2B1E17 !important;
+    box-shadow: 0 8px 24px rgba(50, 35, 20, 0.08) !important;
+}
+
+html.light-theme .glyph-matrix-emblem,
+body.light-theme .glyph-matrix-emblem {
+    background: #3B281C !important;
+    border: 1px solid rgba(66, 45, 30, 0.22) !important;
+}
+
+html.light-theme .glyph-matrix-text,
+body.light-theme .glyph-matrix-text {
+    color: #3B281C !important;
+}
+
+html.light-theme .input-box,
+body.light-theme .input-box {
+    background: rgba(248, 244, 237, 0.96) !important;
+    border: 1px solid rgba(66, 45, 30, 0.15) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    box-shadow: 0 16px 40px rgba(50, 35, 20, 0.10) !important;
+}
+
+html.light-theme .input-box:focus-within,
+body.light-theme .input-box:focus-within {
+    border-color: rgba(66, 45, 30, 0.35) !important;
+    box-shadow: 0 16px 45px rgba(50, 35, 20, 0.14) !important;
+}
+
+html.light-theme .input-box input,
+body.light-theme .input-box input {
+    color: #241710 !important;
+}
+
+html.light-theme .input-box input::placeholder,
+body.light-theme .input-box input::placeholder {
+    color: #8C7868 !important;
+}
+
+html.light-theme .icon-btn,
+body.light-theme .icon-btn {
+    color: #5A4739 !important;
+    background: rgba(66, 45, 30, 0.05) !important;
+}
+
+html.light-theme .icon-btn:hover,
+body.light-theme .icon-btn:hover {
+    color: #1F140D !important;
+    background: rgba(66, 45, 30, 0.10) !important;
+}
+
+html.light-theme .send-btn,
+body.light-theme .send-btn {
+    background: #2E1F16 !important;
+    color: #FAF7F2 !important;
+    box-shadow: 0 2px 10px rgba(50, 35, 20, 0.2) !important;
+}
+
+html.light-theme .send-btn:hover,
+body.light-theme .send-btn:hover {
+    background: #1B110A !important;
+    transform: scale(1.05) !important;
+}
+
+html.light-theme .bubble.ai-bubble,
+body.light-theme .bubble.ai-bubble {
+    background: rgba(253, 250, 245, 0.96) !important;
+    border: 1px solid rgba(66, 45, 30, 0.12) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    color: #2B1E17 !important;
+    box-shadow: 0 8px 24px rgba(50, 35, 20, 0.07) !important;
+}
+
+html.light-theme .bubble.user-bubble,
+body.light-theme .bubble.user-bubble {
+    background: #E8DECF !important;
+    border: 1px solid rgba(66, 45, 30, 0.12) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    color: #20150E !important;
+    box-shadow: 0 4px 14px rgba(50, 35, 20, 0.05) !important;
+}
+
+html.light-theme .ai-bubble pre,
+body.light-theme .ai-bubble pre {
+    background: #EDE4D6 !important;
+    border: 1px solid rgba(66, 45, 30, 0.12) !important;
+    color: #241710 !important;
+}
+
+html.light-theme .ai-bubble code,
+body.light-theme .ai-bubble code {
+    color: #241710 !important;
+}
+
+html.light-theme .thinking-title,
+body.light-theme .thinking-title {
+    color: #6C594A !important;
+}
+
+html.light-theme .thinking-status,
+body.light-theme .thinking-status {
+    color: #7D6A5A !important;
+}
+
+html.light-theme .thinking-core,
+body.light-theme .thinking-core {
+    background: #3B281C !important;
+    box-shadow: 0 0 10px rgba(66, 45, 30, 0.3) !important;
+}
+
+html.light-theme .time,
+body.light-theme .time {
+    color: #8C7868 !important;
+}
+
+html.light-theme .avatar.user-avatar,
+body.light-theme .avatar.user-avatar {
+    background: #3B281C !important;
+    color: #FAF7F2 !important;
+}
+
+html.light-theme .avatar.ai-avatar,
+body.light-theme .avatar.ai-avatar {
+    background: #EDE4D6 !important;
+    border: 1px solid rgba(66, 45, 30, 0.14) !important;
+}
+
+html.light-theme .mini-eye,
+body.light-theme .mini-eye {
+    border-color: #3B281C !important;
+}
+
+html.light-theme .mini-dot,
+body.light-theme .mini-dot {
+    background: #3B281C !important;
+}
+
+html.light-theme .cosmic-notification,
+body.light-theme .cosmic-notification {
+    background: rgba(248, 244, 237, 0.95) !important;
+    border: 1px solid rgba(66, 45, 30, 0.16) !important;
+    color: #241710 !important;
+    box-shadow: 0 12px 36px rgba(50, 35, 20, 0.14) !important;
+}
+
+/* Custom Scrollbars in Light Mode */
+html.light-theme ::-webkit-scrollbar-thumb,
+body.light-theme ::-webkit-scrollbar-thumb {
+    background: rgba(66, 45, 30, 0.22) !important;
+}
+
+html.light-theme ::-webkit-scrollbar-thumb:hover,
+body.light-theme ::-webkit-scrollbar-thumb:hover {
+    background: rgba(66, 45, 30, 0.35) !important;
+}
+
 
 
 

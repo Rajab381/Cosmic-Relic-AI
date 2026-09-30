@@ -29,6 +29,7 @@
       uniform float uGrayscale;
       uniform float uEdgeIntensity;
       uniform float uEdgeBrightness;
+      uniform float uIsLight;
       varying vec2 vUv;
 
       mat3 sobelX = mat3(
@@ -140,9 +141,10 @@
         
         float dissolveMask = smoothstep(dissolveThreshold - 0.03, dissolveThreshold, normalizedDist);
         
-        vec3 edgeColor = vec3(0.85, 0.88, 0.92);
+        vec3 edgeColor = mix(vec3(0.85, 0.88, 0.92), vec3(0.65, 0.45, 0.30), uIsLight);
+        vec3 themeFade = mix(vec3(0.0), vec3(0.965, 0.945, 0.915), uIsLight);
         
-        vec3 baseColor = mix(texColor.rgb, vec3(0.0), uGrayscale);
+        vec3 baseColor = mix(texColor.rgb, themeFade, uGrayscale);
         vec3 finalColor = baseColor;
         
         float edgeGlowIntensity = uEdgeIntensity * 2.0;
@@ -155,7 +157,8 @@
         float sparkle = hash(floor(vUv * uResolution / 4.0)) * edgeZone;
         
         float edgeBrightness = (1.0 - uDissolve) * uEdgeBrightness * (1.0 + uGrayscale * 2.0);
-        finalColor += vec3(sparkle * 3.0 * edgeBrightness);
+        vec3 sparkleColor = mix(vec3(1.0), vec3(0.55, 0.38, 0.25), uIsLight);
+        finalColor += sparkleColor * (sparkle * 3.0 * edgeBrightness);
         
         float alpha = dissolveMask * texColor.a;
 
@@ -174,6 +177,7 @@
       uniform float uEdgeIntensity;
       uniform float uDarkness;
       uniform float uGrayscale;
+      uniform float uIsLight;
       varying vec2 vUv;
 
       mat3 sobelX = mat3(
@@ -231,10 +235,12 @@
         edge = pow(edge, 0.7) * 2.0;
         edge = clamp(edge, 0.0, 1.0);
         
-        vec3 edgeColor = vec3(0.9, 0.6, 1.0);
+        vec3 edgeColor = mix(vec3(0.9, 0.6, 1.0), vec3(0.65, 0.45, 0.30), uIsLight);
         
         vec3 darkBase = vec3(0.0);
-        vec3 baseColor = mix(texColor.rgb, darkBase, uDarkness);
+        vec3 lightBase = vec3(0.965, 0.945, 0.915);
+        vec3 themeBase = mix(darkBase, lightBase, uIsLight);
+        vec3 baseColor = mix(texColor.rgb, themeBase, uDarkness);
         
         float edgeGlow = edge * uEdgeIntensity * 2.0;
         baseColor += edgeColor * edgeGlow;

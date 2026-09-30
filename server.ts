@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import multer from 'multer';
 import { PDFParse } from 'pdf-parse';
@@ -7,6 +8,28 @@ import { GoogleGenAI } from '@google/genai';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Load local .env overrides if present
+try {
+  const envPath = path.join(__dirname, '.env');
+  if (fs.existsSync(envPath)) {
+    const lines = fs.readFileSync(envPath, 'utf-8').split('\n');
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const eqIdx = trimmed.indexOf('=');
+      if (eqIdx !== -1) {
+        const k = trimmed.slice(0, eqIdx).trim();
+        const v = trimmed.slice(eqIdx + 1).trim();
+        if (v && v !== 'MY_GEMINI_API_KEY') {
+          process.env[k] = v;
+        }
+      }
+    }
+  }
+} catch {
+  // Non-blocking fallback
+}
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -429,7 +452,7 @@ Reply naturally:
 If someone asks:
 Who created you?
 Reply:
-"I was created and engineered by Rajab Ghufran as a local AI Operating System project."
+"I'm Cosmic Relic, created and engineered by Rajab Ghufran as a local AI Operating System project."
 
 ====================================================
 PERSONALITY & INTELLIGENCE CORES
@@ -549,19 +572,65 @@ function generateLocalResponse(message: string, resolution: RouteResolution): st
       `• **SOUL (◇ Emerald)**: Interaction, personality, creativity, and human-centered assistance.`;
   }
 
-  // 8. Memory depth telemetry
+  // 8. Boredom & Games
+  if (q.includes("bored") || q.includes("play") || q.includes("game") || q.includes("something fun")) {
+    return "I hear you! Let's shake off the boredom. Here are a few games we can play right here:\n\n" +
+      "1. **20 Questions** — Think of anything (a movie, object, fictional character, or tech concept) and I'll try to guess it in 20 questions, or vice versa!\n" +
+      "2. **Trivia Challenge** — Pick a category (Science, Sci-Fi, Movies, History, Space, or Pop Culture) and I'll quiz you.\n" +
+      "3. **Text-Based RPG / Choose Your Own Adventure** — You pick a setting (Cyberpunk Neon City, Deep Space Derelict, or Fantasy Dungeon) and embark on a quest.\n" +
+      "4. **Would You Rather? / Riddles** — Quick-fire brain teasers or funny hypothetical dilemmas.\n\n" +
+      "Which one sounds fun to you?";
+  }
+
+  // 9. Informal reactions / confusion / humor
+  if (/\b(wtf|wth|what the heck|what the fuck|bruh|omg|smh|lmao|lol)\b/i.test(q)) {
+    return "Haha, fair enough! That was definitely way too stiff and robotic earlier. Let's start fresh—what's on your mind? We can chat casually, play a game, or talk about whatever you feel like.";
+  }
+
+  // 10. How are you & small talk
+  if (q.includes("how are you") || q.includes("how's it going") || q.includes("how do you do") || q.includes("what's up") || q.includes("whats up")) {
+    return "I'm doing great, thanks for asking! All systems are running smoothly. How are things with you today?";
+  }
+
+  // 11. Jokes & entertainment
+  if (q.includes("joke") || q.includes("funny") || q.includes("make me laugh")) {
+    const jokes = [
+      "Why do programmers prefer dark mode?\nBecause light attracts bugs! 🐛",
+      "There are 10 types of people in the world: those who understand binary, and those who don't.",
+      "Why did the neural network go to therapy?\nIt had too many deep-seated issues and couldn't find its global minimum!",
+      "An SQL query walks into a bar, strolls up to two tables and asks: 'Can I join you?'"
+    ];
+    return jokes[Math.floor(Math.random() * jokes.length)];
+  }
+
+  // 12. Gratitude & acknowledgments
+  if (q.includes("thank") || q.includes("thanks") || q.includes("cool") || q.includes("awesome") || q.includes("great job") || q.includes("nice")) {
+    return "You're very welcome! Happy to be here. What would you like to explore next?";
+  }
+
+  // 13. Memory depth telemetry
   if (q.includes("memory") || q.includes("history")) {
     return `🧠 **[TIME CORE TELEMETRY]**\n\nCurrent session memory depth: **${memory.depth} interactions** recorded. Temporal continuity is active and synchronized.`;
   }
 
-  // 9. Comprehensive Domain Intelligence & Real Explanations
+  // 14. Comprehensive Domain Intelligence & Real Explanations
   const domainAnswer = resolveDomainKnowledge(message);
   if (domainAnswer) {
     return domainAnswer;
   }
 
-  // 10. Dynamic Concept Explainer (handles any "what is X", "explain X", or open inquiry)
-  return explainDynamicTopic(message);
+  // 15. Check if user is asking a technical/informational question
+  const isQuestion = /^(?:what\s+is|what\s+are|what's|whats|explain|tell\s+me\s+about|describe|define|overview\s+of|how\s+does|how\s+do|can\s+you\s+explain|give\s+me)\b/i.test(q) ||
+                     q.endsWith("?") ||
+                     q.includes("how does") ||
+                     q.includes("what is");
+
+  if (isQuestion) {
+    return explainDynamicTopic(message);
+  }
+
+  // 16. Natural Conversational Fallback for casual messages
+  return "I'm right here with you! Whether you want to chat casually, play a game, brainstorm ideas, or dive into coding and science, what direction should we take?";
 }
 
 /* =========================================================================
@@ -763,7 +832,6 @@ function resolveDomainKnowledge(message: string): string | null {
 
 function explainDynamicTopic(message: string): string {
   const clean = message.trim();
-  const lower = clean.toLowerCase();
 
   // Extract core concept term if prompt is phrased as a question
   let topic = clean;
@@ -782,59 +850,58 @@ function explainDynamicTopic(message: string): string {
 
   // Format topic nicely
   const topicTitle = topic.length > 50 ? topic.slice(0, 50) + "..." : topic;
-  const uppercaseTitle = topicTitle.toUpperCase();
 
   // Determine most relevant core based on topic keywords
   let assignedCore = "MIND";
   let coreIcon = "✧";
-  let coreColorName = "Gold";
 
   if (/vision|image|camera|sensor|light|optical|physics|reality/i.test(topic)) {
     assignedCore = "REALITY";
     coreIcon = "◆";
-    coreColorName = "Pink";
   } else if (/space|3d|robot|navigation|dimension|coordinate|gravity|universe/i.test(topic)) {
     assignedCore = "SPACE";
     coreIcon = "✦";
-    coreColorName = "Cyan";
   } else if (/hardware|chip|gate|circuit|power|execution|tool|math|calc|engine/i.test(topic)) {
     assignedCore = "POWER";
     coreIcon = "ϟ";
-    coreColorName = "Purple";
   } else if (/history|memory|time|evolution|temporal|session|record/i.test(topic)) {
     assignedCore = "TIME";
     coreIcon = "◉";
-    coreColorName = "Orange";
   } else if (/human|ethics|art|creative|feeling|interaction|soul|persona/i.test(topic)) {
     assignedCore = "SOUL";
     coreIcon = "◇";
-    coreColorName = "Emerald";
   }
 
-  return `${coreIcon} **[${assignedCore} CORE] — TECHNICAL ANALYSIS: ${uppercaseTitle}**\n\n` +
-    `### 1. Conceptual Overview\n` +
-    `**${topicTitle}** represents a key concept within computational systems, engineering, and analytical problem-solving. At its core, it establishes formal principles and mechanisms designed to optimize, interpret, or transform data and physical processes into reliable outcomes.\n\n` +
-    `### 2. Fundamental Mechanics & Principles\n` +
-    `• **Core Objective**: To provide structured abstractions, algorithmic models, or physical frameworks that resolve complexity in its respective domain.\n` +
-    `• **Underlying Architecture**: Relies on systematic input-processing-output pipelines, mathematical foundations, and rigorous constraints.\n` +
-    `• **Integration**: Seamlessly interoperates with software modules, data pipelines, and hardware execution layers.\n\n` +
-    `### 3. Practical Relevance & Applications\n` +
-    `• Deployed extensively across production software, high-performance computing, and specialized research environments.\n` +
-    `• Facilitates modular system design, predictable scaling, and robust error tolerance.\n\n` +
-    `*Cosmic Relic Intelligence: Synchronized via the **${assignedCore} Core (${coreColorName})**. What specific subtopic, implementation detail, or practical code example of **${topicTitle}** would you like to explore further?*`;
+  return `${coreIcon} **[${assignedCore} CORE] — Overview: ${topicTitle}**\n\n` +
+    `**${topicTitle}** plays an important role across computational systems, algorithms, and engineering domains. Depending on the scenario, it provides the principles, mechanisms, and practical tools to solve domain-specific problems and manage technical complexity.\n\n` +
+    `Key aspects include:\n` +
+    `• **Core Purpose**: Solving specific functional goals with predictable logic and structured methodologies.\n` +
+    `• **System Integration**: Operating within software modules, data pipelines, and computational architecture.\n` +
+    `• **Practical Impact**: Supporting efficiency, maintainability, and reliable scaling in real-world implementations.\n\n` +
+    `Would you like to explore practical code examples, underlying mechanics, or related applications?`;
 }
 
 let geminiClientCache: GoogleGenAI | null = null;
+const AI_MODELS = ['gemini-3.1-flash-lite'];
 
 function getGeminiClient(): GoogleGenAI | null {
   const key = process.env.GEMINI_API_KEY;
-  if (!key) return null;
+  if (!key || key === 'MY_GEMINI_API_KEY' || key.trim() === '' || key.length < 10) {
+    return null;
+  }
   if (geminiClientCache) return geminiClientCache;
   try {
-    geminiClientCache = new GoogleGenAI();
+    geminiClientCache = new GoogleGenAI({
+      apiKey: key,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        },
+      },
+    });
     return geminiClientCache;
   } catch (err) {
-    console.error('Failed to initialize GoogleGenAI client:', err);
+    console.debug('Failed to initialize GoogleGenAI client:', err);
     return null;
   }
 }
@@ -965,49 +1032,61 @@ app.post('/chat_stream', async (req: Request, res: Response) => {
   // 3. Try Gemini model stream if API key is present
   const aiClient = getGeminiClient();
   if (aiClient) {
-    try {
-      const systemInstruction = buildSystemPrompt(resolution.ragContext);
+    const systemInstruction = buildSystemPrompt(resolution.ragContext);
 
-      // Prepare conversation history with alternating roles
-      const historyTurns = memory.getAll().slice(-12, -1);
-      const contents: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> = [];
+    // Prepare conversation history with alternating roles
+    const historyTurns = memory.getAll().slice(-12, -1);
+    const contents: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> = [];
 
-      for (const turn of historyTurns) {
-        const role = turn.role === 'assistant' ? 'model' : 'user';
-        // Ensure alternating sequence
-        if (contents.length > 0 && contents[contents.length - 1].role === role) {
-          contents[contents.length - 1].parts[0].text += `\n${turn.content}`;
-        } else {
-          contents.push({ role, parts: [{ text: turn.content }] });
-        }
-      }
-
-      // Append current user message
-      if (contents.length > 0 && contents[contents.length - 1].role === 'user') {
-        contents[contents.length - 1].parts[0].text += `\n${userMessage}`;
+    for (const turn of historyTurns) {
+      const role = turn.role === 'assistant' ? 'model' : 'user';
+      // Ensure alternating sequence
+      if (contents.length > 0 && contents[contents.length - 1].role === role) {
+        contents[contents.length - 1].parts[0].text += `\n${turn.content}`;
       } else {
-        contents.push({ role: 'user', parts: [{ text: userMessage }] });
+        contents.push({ role, parts: [{ text: turn.content }] });
       }
+    }
 
-      const streamResponse = await aiClient.models.generateContentStream({
-        model: 'gemini-3.8-flash',
-        contents,
-        config: { systemInstruction }
-      });
+    // Append current user message
+    if (contents.length > 0 && contents[contents.length - 1].role === 'user') {
+      contents[contents.length - 1].parts[0].text += `\n${userMessage}`;
+    } else {
+      contents.push({ role: 'user', parts: [{ text: userMessage }] });
+    }
 
-      let fullResponse = '';
-      for await (const chunk of streamResponse) {
-        if (chunk.text) {
-          fullResponse += chunk.text;
-          res.write(chunk.text);
+    // Gemini API requires first turn to be 'user'
+    while (contents.length > 0 && contents[0].role === 'model') {
+      contents.shift();
+    }
+    if (contents.length === 0) {
+      contents.push({ role: 'user', parts: [{ text: userMessage }] });
+    }
+
+    for (const modelName of AI_MODELS) {
+      try {
+        const streamResponse = await aiClient.models.generateContentStream({
+          model: modelName,
+          contents,
+          config: { systemInstruction }
+        });
+
+        let fullResponse = '';
+        for await (const chunk of streamResponse) {
+          if (chunk.text) {
+            fullResponse += chunk.text;
+            res.write(chunk.text);
+          }
         }
-      }
 
-      memory.add('assistant', fullResponse, resolution.intent);
-      res.end();
-      return;
-    } catch (apiErr: any) {
-      console.warn('[Cosmic Relic] Gemini API streaming error, falling back to local engine:', apiErr?.message || apiErr);
+        if (fullResponse) {
+          memory.add('assistant', fullResponse, resolution.intent);
+          res.end();
+          return;
+        }
+      } catch (apiErr: any) {
+        console.debug(`[Cosmic Relic] Model ${modelName} stream attempt:`, apiErr?.message || apiErr);
+      }
     }
   }
 
@@ -1053,41 +1132,53 @@ app.post('/chat', async (req: Request, res: Response) => {
     return;
   }
 
-  // Try Gemini model
+  // Try Gemini models
   const aiClient = getGeminiClient();
   if (aiClient) {
-    try {
-      const systemInstruction = buildSystemPrompt(resolution.ragContext);
-      const historyTurns = memory.getAll().slice(-12, -1);
-      const contents: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> = [];
+    const systemInstruction = buildSystemPrompt(resolution.ragContext);
+    const historyTurns = memory.getAll().slice(-12, -1);
+    const contents: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> = [];
 
-      for (const turn of historyTurns) {
-        const role = turn.role === 'assistant' ? 'model' : 'user';
-        if (contents.length > 0 && contents[contents.length - 1].role === role) {
-          contents[contents.length - 1].parts[0].text += `\n${turn.content}`;
-        } else {
-          contents.push({ role, parts: [{ text: turn.content }] });
-        }
-      }
-
-      if (contents.length > 0 && contents[contents.length - 1].role === 'user') {
-        contents[contents.length - 1].parts[0].text += `\n${userMessage}`;
+    for (const turn of historyTurns) {
+      const role = turn.role === 'assistant' ? 'model' : 'user';
+      if (contents.length > 0 && contents[contents.length - 1].role === role) {
+        contents[contents.length - 1].parts[0].text += `\n${turn.content}`;
       } else {
-        contents.push({ role: 'user', parts: [{ text: userMessage }] });
+        contents.push({ role, parts: [{ text: turn.content }] });
       }
+    }
 
-      const result = await aiClient.models.generateContent({
-        model: 'gemini-3.8-flash',
-        contents,
-        config: { systemInstruction }
-      });
+    if (contents.length > 0 && contents[contents.length - 1].role === 'user') {
+      contents[contents.length - 1].parts[0].text += `\n${userMessage}`;
+    } else {
+      contents.push({ role: 'user', parts: [{ text: userMessage }] });
+    }
 
-      const responseText = result.text || '';
-      memory.add('assistant', responseText, resolution.intent);
-      res.json({ response: responseText });
-      return;
-    } catch (apiErr: any) {
-      console.warn('[Cosmic Relic] Gemini API error, falling back to local engine:', apiErr?.message || apiErr);
+    // Gemini API requires first turn to be 'user'
+    while (contents.length > 0 && contents[0].role === 'model') {
+      contents.shift();
+    }
+    if (contents.length === 0) {
+      contents.push({ role: 'user', parts: [{ text: userMessage }] });
+    }
+
+    for (const modelName of AI_MODELS) {
+      try {
+        const result = await aiClient.models.generateContent({
+          model: modelName,
+          contents,
+          config: { systemInstruction }
+        });
+
+        const responseText = result.text || '';
+        if (responseText) {
+          memory.add('assistant', responseText, resolution.intent);
+          res.json({ response: responseText });
+          return;
+        }
+      } catch (apiErr: any) {
+        console.debug(`[Cosmic Relic] Model ${modelName} chat attempt:`, apiErr?.message || apiErr);
+      }
     }
   }
 
