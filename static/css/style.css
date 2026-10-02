@@ -7454,6 +7454,18 @@ body.light-theme .dock-tooltip {
 }
 
 /* Quantum Scroll Dissolve & HUD in Light Mode */
+html.light-theme .dissolve-sticky-frame,
+body.light-theme .dissolve-sticky-frame {
+    background: radial-gradient(circle at center, #FAF6EE 0%, #F3ECE0 48%, #EAE0D0 100%) !important;
+}
+
+html.light-theme .dissolve-hud-overlay,
+body.light-theme .dissolve-hud-overlay {
+    background: rgba(248, 244, 237, 0.90) !important;
+    border: 1px solid rgba(66, 45, 30, 0.14) !important;
+    box-shadow: 0 16px 40px rgba(60, 40, 25, 0.10) !important;
+}
+
 html.light-theme .dissolve-hud-badge,
 body.light-theme .dissolve-hud-badge {
     background: rgba(248, 244, 237, 0.92) !important;
@@ -7857,6 +7869,442 @@ html.light-theme ::-webkit-scrollbar-thumb:hover,
 body.light-theme ::-webkit-scrollbar-thumb:hover {
     background: rgba(66, 45, 30, 0.35) !important;
 }
+
+/* =========================================================================
+   14. COSMIC RELIC AI ENTRY SCREEN & AUTH EXPERIENCE
+   Cinematic, minimal, monochrome particle visual centerpiece & clean auth controls
+   ========================================================================= */
+
+.cosmic-entry-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at 50% 35%, #0D1118 0%, #05070A 100%);
+    overflow-y: auto;
+    overflow-x: hidden;
+    opacity: 1;
+    transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cosmic-entry-screen.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Interactive Particle Hero Canvas Container */
+.entry-particles-wrap {
+    position: relative;
+    width: 100%;
+    height: 48vh;
+    min-height: 270px;
+    max-height: 420px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    overflow: hidden;
+}
+
+.entry-particles-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* Authentication Area Directly Underneath Particle Field */
+.entry-auth-container {
+    position: relative;
+    z-index: 20;
+    width: 100%;
+    max-width: 400px;
+    padding: 0 24px 36px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.auth-view {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    animation: authFadeIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes authFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.auth-title {
+    font-family: 'Orbitron', 'Inter', monospace, sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    margin: 0 0 8px 0;
+    color: #F0F3F8;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+}
+
+.auth-subtitle {
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 0.86rem;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    margin: 0 0 24px 0;
+    color: rgba(220, 226, 238, 0.65);
+}
+
+.auth-actions-group {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    justify-content: center;
+}
+
+.auth-btn {
+    flex: 1;
+    min-height: 44px;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    outline: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    user-select: none;
+    box-sizing: border-box;
+}
+
+/* Primary Button (Dark Mode) */
+.auth-btn-primary {
+    background: #141822;
+    color: #FFFFFF;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+.auth-btn-primary:hover:not(:disabled) {
+    background: #1D2330;
+    border-color: rgba(255, 255, 255, 0.35);
+    color: #FFFFFF;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+}
+
+.auth-btn-primary:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Secondary Button (Dark Mode) */
+.auth-btn-secondary {
+    background: #0B0E14;
+    color: #D2D8E4;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.auth-btn-secondary:hover:not(:disabled) {
+    background: #161C26;
+    border-color: rgba(255, 255, 255, 0.25);
+    color: #FFFFFF;
+    transform: translateY(-1px);
+}
+
+/* Ghost Button (Continue as Guest) */
+.auth-btn-ghost {
+    width: 100%;
+    max-width: 260px;
+    background: transparent;
+    color: rgba(215, 222, 235, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.84rem;
+}
+
+.auth-btn-ghost:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.24);
+    color: #FFFFFF;
+    transform: translateY(-1px);
+}
+
+.auth-btn-ghost:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Minimal "or" Divider */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin: 16px 0;
+    gap: 12px;
+}
+
+.auth-divider-line {
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.auth-divider-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    text-transform: lowercase;
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 0.08em;
+}
+
+/* Forms & Inputs */
+.auth-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    text-align: left;
+}
+
+.auth-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 100%;
+}
+
+.auth-label {
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(220, 226, 238, 0.75);
+}
+
+.auth-input {
+    width: 100%;
+    padding: 11px 14px;
+    background: #0E121A;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 0.9rem;
+    color: #FFFFFF;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+.auth-input::placeholder {
+    color: rgba(255, 255, 255, 0.28);
+}
+
+.auth-input:focus {
+    border-color: rgba(255, 255, 255, 0.4);
+    background: #141A24;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08);
+}
+
+.auth-password-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.auth-password-wrap .auth-input {
+    padding-right: 40px;
+}
+
+.auth-pw-toggle {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 6px;
+    color: rgba(255, 255, 255, 0.45);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.auth-pw-toggle:hover {
+    color: #FFFFFF;
+}
+
+/* Inline Clean Error Message */
+.auth-error-msg {
+    width: 100%;
+    padding: 9px 12px;
+    background: rgba(220, 60, 60, 0.12);
+    border: 1px solid rgba(220, 60, 60, 0.3);
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    line-height: 1.4;
+    color: #FF7B7B;
+    box-sizing: border-box;
+    text-align: left;
+}
+
+/* =========================================================================
+   LIGHT MODE ENTRY SCREEN STYLES
+   Warm ivory / deep brown palette, subtle beige borders, monochrome
+   ========================================================================= */
+
+html.light-theme .cosmic-entry-screen,
+body.light-theme .cosmic-entry-screen {
+    background: radial-gradient(circle at 50% 35%, #FAF7F2 0%, #EDE6DC 100%) !important;
+}
+
+html.light-theme .auth-title,
+body.light-theme .auth-title {
+    color: #1F140D !important;
+    text-shadow: none !important;
+}
+
+html.light-theme .auth-subtitle,
+body.light-theme .auth-subtitle {
+    color: rgba(43, 30, 23, 0.72) !important;
+}
+
+html.light-theme .auth-btn-primary,
+body.light-theme .auth-btn-primary {
+    background: #EFE8DC !important;
+    color: #22150E !important;
+    border: 1px solid rgba(66, 45, 30, 0.2) !important;
+    box-shadow: 0 4px 14px rgba(66, 45, 30, 0.08) !important;
+}
+
+html.light-theme .auth-btn-primary:hover:not(:disabled),
+body.light-theme .auth-btn-primary:hover:not(:disabled) {
+    background: #E4DACB !important;
+    border-color: rgba(66, 45, 30, 0.35) !important;
+    color: #160D08 !important;
+    box-shadow: 0 6px 18px rgba(66, 45, 30, 0.12) !important;
+}
+
+html.light-theme .auth-btn-secondary,
+body.light-theme .auth-btn-secondary {
+    background: #F8F4EC !important;
+    color: #3A281D !important;
+    border: 1px solid rgba(66, 45, 30, 0.14) !important;
+}
+
+html.light-theme .auth-btn-secondary:hover:not(:disabled),
+body.light-theme .auth-btn-secondary:hover:not(:disabled) {
+    background: #EDE4D6 !important;
+    border-color: rgba(66, 45, 30, 0.28) !important;
+    color: #1F140D !important;
+}
+
+html.light-theme .auth-btn-ghost,
+body.light-theme .auth-btn-ghost {
+    background: transparent !important;
+    color: rgba(58, 40, 29, 0.75) !important;
+    border: 1px solid rgba(66, 45, 30, 0.15) !important;
+}
+
+html.light-theme .auth-btn-ghost:hover:not(:disabled),
+body.light-theme .auth-btn-ghost:hover:not(:disabled) {
+    background: rgba(66, 45, 30, 0.05) !important;
+    border-color: rgba(66, 45, 30, 0.3) !important;
+    color: #1F140D !important;
+}
+
+html.light-theme .auth-divider-line,
+body.light-theme .auth-divider-line {
+    background: rgba(66, 45, 30, 0.14) !important;
+}
+
+html.light-theme .auth-divider-text,
+body.light-theme .auth-divider-text {
+    color: rgba(66, 45, 30, 0.5) !important;
+}
+
+html.light-theme .auth-label,
+body.light-theme .auth-label {
+    color: rgba(43, 30, 23, 0.8) !important;
+}
+
+html.light-theme .auth-input,
+body.light-theme .auth-input {
+    background: #FFFFFF !important;
+    border: 1px solid rgba(66, 45, 30, 0.18) !important;
+    color: #1F140D !important;
+}
+
+html.light-theme .auth-input::placeholder,
+body.light-theme .auth-input::placeholder {
+    color: rgba(66, 45, 30, 0.35) !important;
+}
+
+html.light-theme .auth-input:focus,
+body.light-theme .auth-input:focus {
+    border-color: rgba(66, 45, 30, 0.5) !important;
+    background: #FFFFFF !important;
+    box-shadow: 0 0 0 2px rgba(66, 45, 30, 0.08) !important;
+}
+
+html.light-theme .auth-pw-toggle,
+body.light-theme .auth-pw-toggle {
+    color: rgba(66, 45, 30, 0.45) !important;
+}
+
+html.light-theme .auth-pw-toggle:hover,
+body.light-theme .auth-pw-toggle:hover {
+    color: #1F140D !important;
+}
+
+html.light-theme .auth-error-msg,
+body.light-theme .auth-error-msg {
+    background: rgba(185, 45, 45, 0.08) !important;
+    border: 1px solid rgba(185, 45, 45, 0.24) !important;
+    color: #A62121 !important;
+}
+
+/* User Profile Badge in Dock */
+.dock-user-item {
+    position: relative;
+}
+
+.dock-user-btn {
+    color: #D0D6E2;
+}
+
+html.light-theme .dock-user-btn,
+body.light-theme .dock-user-btn {
+    color: #2B1E17 !important;
+}
+
 
 
 

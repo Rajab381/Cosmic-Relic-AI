@@ -450,7 +450,8 @@ function initMacOSDock() {
 function initTheme() {
     try {
         const savedTheme = localStorage.getItem("cosmic_theme");
-        if (savedTheme === "light") {
+        const isLight = savedTheme === "light";
+        if (isLight) {
             document.documentElement.classList.add("light-theme");
             document.body.classList.add("light-theme");
             updateThemeUI(true);
@@ -458,6 +459,12 @@ function initTheme() {
             document.documentElement.classList.remove("light-theme");
             document.body.classList.remove("light-theme");
             updateThemeUI(false);
+        }
+        if (typeof window.updateScrollDissolveTheme === "function") {
+            window.updateScrollDissolveTheme(isLight);
+        }
+        if (window.entryParticles && typeof window.entryParticles.updateTheme === "function") {
+            window.entryParticles.updateTheme(isLight);
         }
     } catch (e) {
         updateThemeUI(false);
@@ -472,9 +479,19 @@ function toggleTheme() {
     } catch (e) {}
     updateThemeUI(isLight);
 
+    // If scroll-dissolve is instantiated, update Layer 1 & Layer 2 theme
+    if (typeof window.updateScrollDissolveTheme === "function") {
+        window.updateScrollDissolveTheme(isLight);
+    }
+
     // If glyph matrix is instantiated, redraw with theme palette
     if (window.glyphMatrixInstance && typeof window.glyphMatrixInstance.draw === "function") {
         window.glyphMatrixInstance.draw();
+    }
+
+    // If entry particles are instantiated, update their theme
+    if (window.entryParticles && typeof window.entryParticles.updateTheme === "function") {
+        window.entryParticles.updateTheme(isLight);
     }
 }
 

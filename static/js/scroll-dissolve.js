@@ -251,24 +251,32 @@
       }
     `;
 
-    // Offscreen Canvas Texture Generators
-    function createFrontPlateTexture() {
-        const canvas = document.createElement("canvas");
+    // Offscreen Canvas Texture Generators with Full Theme Support
+    let frontCanvas = null;
+    let backCanvas = null;
+
+    function renderFrontPlate(canvas, isLight) {
         canvas.width = 1024;
         canvas.height = 1024;
         const ctx = canvas.getContext("2d");
 
-        // Rich monochrome dark radial background
+        // Background: Warm off-white / ivory in Light Mode, deep dark radial in Dark Mode
         const bgGrad = ctx.createRadialGradient(512, 512, 40, 512, 512, 512);
-        bgGrad.addColorStop(0, "#131418");
-        bgGrad.addColorStop(0.5, "#0b0c0f");
-        bgGrad.addColorStop(1, "#020304");
+        if (isLight) {
+            bgGrad.addColorStop(0, "#FAF6EF");
+            bgGrad.addColorStop(0.5, "#F4ECE0");
+            bgGrad.addColorStop(1, "#EAE0D0");
+        } else {
+            bgGrad.addColorStop(0, "#131418");
+            bgGrad.addColorStop(0.5, "#0b0c0f");
+            bgGrad.addColorStop(1, "#020304");
+        }
         ctx.fillStyle = bgGrad;
         ctx.fillRect(0, 0, 1024, 1024);
 
-        // Concentric geometric rings — subtle graphite
+        // Concentric geometric rings
         ctx.lineWidth = 1.5;
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
+        ctx.strokeStyle = isLight ? "rgba(66, 45, 30, 0.12)" : "rgba(255, 255, 255, 0.08)";
         for (let r = 120; r <= 460; r += 55) {
             ctx.beginPath();
             ctx.arc(512, 512, r, 0, Math.PI * 2);
@@ -277,14 +285,14 @@
 
         // Secondary subtle dotted ring
         ctx.setLineDash([4, 12]);
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
+        ctx.strokeStyle = isLight ? "rgba(66, 45, 30, 0.16)" : "rgba(255, 255, 255, 0.12)";
         ctx.beginPath();
         ctx.arc(512, 512, 380, 0, Math.PI * 2);
         ctx.stroke();
         ctx.setLineDash([]);
 
-        // Radial coordinate lines — subtle graphite
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+        // Radial coordinate lines
+        ctx.strokeStyle = isLight ? "rgba(66, 45, 30, 0.07)" : "rgba(255, 255, 255, 0.05)";
         ctx.lineWidth = 1;
         for (let i = 0; i < 12; i++) {
             const angle = (i * Math.PI) / 6;
@@ -294,21 +302,21 @@
             ctx.stroke();
         }
 
-        // Central Hologram Branding — Clean Monochrome & Restrained
-        ctx.shadowColor = "rgba(255, 255, 255, 0.12)";
+        // Central Hologram Branding — Deep Brown in Light Mode, Clean White in Dark Mode
+        ctx.shadowColor = isLight ? "rgba(66, 45, 30, 0.14)" : "rgba(255, 255, 255, 0.12)";
         ctx.shadowBlur = 14;
-        ctx.fillStyle = "#ffffff";
+        ctx.fillStyle = isLight ? "#241710" : "#ffffff";
         ctx.font = "800 50px 'Inter', sans-serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText("COSMIC RELIC AI", 512, 470);
 
         ctx.shadowBlur = 0;
-        ctx.fillStyle = "#9ca3af";
+        ctx.fillStyle = isLight ? "#6C594A" : "#9ca3af";
         ctx.font = "600 15px 'Inter', sans-serif";
         ctx.fillText("DESIGNED AND ENGINEERED BY RAJAB", 512, 532);
 
-        // Core markers — THE SIX CONTROLLED COLORED STONES
+        // Core markers — THE SIX CONTROLLED COLORED STONES (Preserved in both themes)
         const coreLabels = ["SPACE", "REALITY", "POWER", "MIND", "TIME", "SOUL"];
         const coreColors = ["#42bfff", "#ff4f91", "#9d5cff", "#ffd34e", "#ff9b42", "#56e0a0"];
         for (let i = 0; i < 6; i++) {
@@ -316,9 +324,9 @@
             const x = 512 + Math.cos(angle) * 320;
             const y = 512 + Math.sin(angle) * 320;
 
-            // Vibrant stone glow (the only colored elements in the system)
+            // Vibrant stone glow
             ctx.shadowColor = coreColors[i];
-            ctx.shadowBlur = 22;
+            ctx.shadowBlur = isLight ? 16 : 22;
             ctx.fillStyle = coreColors[i];
             ctx.beginPath();
             ctx.arc(x, y, 13, 0, Math.PI * 2);
@@ -331,8 +339,8 @@
             ctx.arc(x, y, 4, 0, Math.PI * 2);
             ctx.fill();
 
-            // Core label — clean soft white / light grey
-            ctx.fillStyle = "#d1d5db";
+            // Core label
+            ctx.fillStyle = isLight ? "#3D2B1F" : "#d1d5db";
             ctx.font = "600 12px 'Inter', sans-serif";
             ctx.fillText(coreLabels[i], x, y + 28);
         }
@@ -340,23 +348,28 @@
         return canvas;
     }
 
-    function createBackPlateTexture() {
-        const canvas = document.createElement("canvas");
+    function renderBackPlate(canvas, isLight) {
         canvas.width = 1024;
         canvas.height = 1024;
         const ctx = canvas.getContext("2d");
 
-        // Rich deep monochrome charcoal/black
+        // Background: Warm off-white / ivory in Light Mode, deep charcoal/black in Dark Mode
         const bgGrad = ctx.createRadialGradient(512, 512, 40, 512, 512, 512);
-        bgGrad.addColorStop(0, "#16171d");
-        bgGrad.addColorStop(0.5, "#0c0d11");
-        bgGrad.addColorStop(1, "#030305");
+        if (isLight) {
+            bgGrad.addColorStop(0, "#F7F2E8");
+            bgGrad.addColorStop(0.5, "#EFE6D6");
+            bgGrad.addColorStop(1, "#E4D7C3");
+        } else {
+            bgGrad.addColorStop(0, "#16171d");
+            bgGrad.addColorStop(0.5, "#0c0d11");
+            bgGrad.addColorStop(1, "#030305");
+        }
         ctx.fillStyle = bgGrad;
         ctx.fillRect(0, 0, 1024, 1024);
 
-        // Subtle graphite flux grid
+        // Subtle flux grid
         ctx.lineWidth = 1;
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+        ctx.strokeStyle = isLight ? "rgba(66, 45, 30, 0.08)" : "rgba(255, 255, 255, 0.05)";
         for (let x = 64; x < 1024; x += 96) {
             for (let y = 64; y < 1024; y += 96) {
                 ctx.beginPath();
@@ -365,31 +378,31 @@
             }
         }
 
-        // Inner singularity rings — subtle graphite
+        // Inner singularity rings
         ctx.lineWidth = 1.5;
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
+        ctx.strokeStyle = isLight ? "rgba(66, 45, 30, 0.16)" : "rgba(255, 255, 255, 0.12)";
         ctx.beginPath();
         ctx.arc(512, 512, 280, 0, Math.PI * 2);
         ctx.stroke();
 
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.18)";
+        ctx.strokeStyle = isLight ? "rgba(66, 45, 30, 0.22)" : "rgba(255, 255, 255, 0.18)";
         ctx.beginPath();
         ctx.arc(512, 512, 190, 0, Math.PI * 2);
         ctx.stroke();
 
-        // Welcome Typography — Crisp White with Restrained Soft Glow
-        ctx.shadowColor = "rgba(255, 255, 255, 0.25)";
+        // Welcome Typography — Deep Brown in Light Mode, Crisp White in Dark Mode
+        ctx.shadowColor = isLight ? "rgba(66, 45, 30, 0.18)" : "rgba(255, 255, 255, 0.25)";
         ctx.shadowBlur = 24;
-        ctx.fillStyle = "#ffffff";
+        ctx.fillStyle = isLight ? "#22150E" : "#ffffff";
         ctx.font = "800 68px 'Inter', sans-serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText("WELCOME", 512, 512);
 
-        // High-tech circuit brackets — restrained graphite
+        // High-tech circuit brackets
         ctx.shadowBlur = 0;
         ctx.lineWidth = 2;
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.16)";
+        ctx.strokeStyle = isLight ? "rgba(66, 45, 30, 0.20)" : "rgba(255, 255, 255, 0.16)";
         ctx.beginPath();
         ctx.moveTo(120, 200); ctx.lineTo(120, 120); ctx.lineTo(200, 120);
         ctx.moveTo(904, 200); ctx.lineTo(904, 120); ctx.lineTo(824, 120);
@@ -419,6 +432,8 @@
         if (isInitialized) return;
         isInitialized = true;
 
+        const isLight = document.documentElement.classList.contains("light-theme") || document.body.classList.contains("light-theme");
+
         const width = track.clientWidth || window.innerWidth;
         const height = window.innerHeight;
 
@@ -437,8 +452,10 @@
         renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
 
         // Create Textures
-        const frontCanvas = createFrontPlateTexture();
-        const backCanvas = createBackPlateTexture();
+        frontCanvas = document.createElement("canvas");
+        backCanvas = document.createElement("canvas");
+        renderFrontPlate(frontCanvas, isLight);
+        renderBackPlate(backCanvas, isLight);
 
         texture1 = new THREE.CanvasTexture(frontCanvas);
         texture2 = new THREE.CanvasTexture(backCanvas);
@@ -456,7 +473,8 @@
             uTime: { value: 0.0 },
             uGrayscale: { value: 0.0 },
             uEdgeIntensity: { value: 0.0 },
-            uEdgeBrightness: { value: 1.0 }
+            uEdgeBrightness: { value: 1.0 },
+            uIsLight: { value: isLight ? 1.0 : 0.0 }
         };
 
         // Uniforms for Mesh 2 (Back Face Reverse Reveal)
@@ -470,7 +488,8 @@
             uBrightness: { value: 0.0 },
             uEdgeIntensity: { value: 0.6 },
             uDarkness: { value: 1.0 },
-            uGrayscale: { value: 1.0 }
+            uGrayscale: { value: 1.0 },
+            uIsLight: { value: isLight ? 1.0 : 0.0 }
         };
 
         material1 = new THREE.ShaderMaterial({
@@ -605,6 +624,34 @@
             if (material1) material1.uniforms.uResolution.value.set(newWidth, newHeight);
             if (material2) material2.uniforms.uResolution.value.set(newWidth, newHeight);
         }, { passive: true });
+
+        // Theme Synchronization
+        function updateScrollDissolveTheme(isLight) {
+            if (!frontCanvas || !backCanvas || !texture1 || !texture2) return;
+            renderFrontPlate(frontCanvas, isLight);
+            renderBackPlate(backCanvas, isLight);
+            texture1.needsUpdate = true;
+            texture2.needsUpdate = true;
+            if (material1 && material1.uniforms.uIsLight) {
+                material1.uniforms.uIsLight.value = isLight ? 1.0 : 0.0;
+            }
+            if (material2 && material2.uniforms.uIsLight) {
+                material2.uniforms.uIsLight.value = isLight ? 1.0 : 0.0;
+            }
+            if (renderer && scene && camera) {
+                renderer.render(scene, camera);
+            }
+        }
+        window.updateScrollDissolveTheme = updateScrollDissolveTheme;
+
+        if (typeof MutationObserver !== "undefined") {
+            const themeObserver = new MutationObserver(() => {
+                const isLightNow = document.documentElement.classList.contains("light-theme") || document.body.classList.contains("light-theme");
+                updateScrollDissolveTheme(isLightNow);
+            });
+            themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+            themeObserver.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+        }
     }
 
     const coresData = [

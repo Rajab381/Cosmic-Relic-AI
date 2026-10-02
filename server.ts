@@ -5,6 +5,8 @@ import { fileURLToPath } from 'url';
 import multer from 'multer';
 import { PDFParse } from 'pdf-parse';
 import { GoogleGenAI } from '@google/genai';
+import cookieParser from 'cookie-parser';
+import bcrypt from 'bcryptjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -44,6 +46,7 @@ const upload = multer({
 // Middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cookieParser('cosmic_relic_secret_session_salt'));
 
 // Serve static assets and screenshots
 app.use('/static', express.static(path.join(__dirname, 'static')));
@@ -238,6 +241,75 @@ class CosmicRAG {
 const ragEngine = new CosmicRAG();
 
 /* =========================================================================
+   USER SESSIONS & ISOLATION SYSTEM
+   ========================================================================= */
+
+export interface UserSession {
+  userId: string;
+  username: string;
+  email: string;
+  createdAt: string;
+  status: string;
+  isGuest?: boolean;
+}
+
+const sessions = new Map<string, UserSession>();
+const userMemories = new Map<string, CosmicMemory>();
+const userRAGs = new Map<string, CosmicRAG>();
+
+const GOOGLE_SHEETS_API_URL = process.env.GOOGLE_SHEETS_API_URL || 'https://script.google.com/macros/s/AKfycbw81u3pmNs7Acrun_VFpSL7ulyuYnLsbe5A3Isit69JCKit8iVbojMwBdcHxWxzf4gq/exec';
+
+async function callGoogleSheetsDB(payload: Record<string, any>): Promise<any> {
+  const endpoint = process.env.GOOGLE_SHEETS_API_URL || GOOGLE_SHEETS_API_URL;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 18000);
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      redirect: 'follow',
+      signal: controller.signal
+    });
+    if (!response.ok) {
+      throw new Error(`Google Sheets API responded with status ${response.status}`);
+    }
+    return await response.json();
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export function getSessionKey(req: Request): string {
+  const token = req.cookies?.cosmic_session;
+  if (token && sessions.has(token)) {
+    const s = sessions.get(token)!;
+    return s.isGuest ? `guest_${token}` : `user_${s.userId}`;
+  }
+  if (token) {
+    return `sess_${token}`;
+  }
+  return 'guest_default';
+}
+
+export function getMemory(sessionKey: string): CosmicMemory {
+  if (!userMemories.has(sessionKey)) {
+    userMemories.set(sessionKey, new CosmicMemory());
+  }
+  return userMemories.get(sessionKey)!;
+}
+
+export function getRAG(sessionKey: string): CosmicRAG {
+  if (!userRAGs.has(sessionKey)) {
+    userRAGs.set(sessionKey, new CosmicRAG());
+  }
+  return userRAGs.get(sessionKey)!;
+}
+
+const defaultMemory = getMemory('guest_default');
+const defaultRAG = getRAG('guest_default');
+
+/* =========================================================================
    3. COSMIC TOOLS & CALCULATOR (POWER CORE)
    ========================================================================= */
 
@@ -348,7 +420,7 @@ export interface RouteResolution {
   reason: string;
 }
 
-function routeUserMessage(message: string): RouteResolution {
+function routeUserMessage(message: string, currentRag: CosmicRAG = defaultRAG): RouteResolution {
   const clean = message.trim();
   const lower = clean.toLowerCase();
 
@@ -365,7 +437,7 @@ function routeUserMessage(message: string): RouteResolution {
   }
 
   // 2. RAG intent evaluation
-  if (ragEngine.isLoaded) {
+  if (currentRag.isLoaded) {
     const isExplicitDocQuery =
       lower.includes('document') ||
       lower.includes('pdf') ||
@@ -374,7 +446,7 @@ function routeUserMessage(message: string): RouteResolution {
       lower.includes('summarize') ||
       lower.includes('according to');
 
-    const searchResult = ragEngine.search(clean, 3);
+    const searchResult = currentRag.search(clean, 3);
 
     if (searchResult.context) {
       return {
@@ -516,7 +588,12 @@ Answer normally using your own knowledge and active conversation memory.
    6. LOCAL OFFLINE INTELLIGENCE ENGINE (FALLBACK / PARITY)
    ========================================================================= */
 
-function generateLocalResponse(message: string, resolution: RouteResolution): string {
+function generateLocalResponse(
+  message: string,
+  resolution: RouteResolution,
+  currentMemory: CosmicMemory = defaultMemory,
+  currentRag: CosmicRAG = defaultRAG
+): string {
   const q = message.trim().toLowerCase();
 
   // 1. Tool execution response
@@ -533,11 +610,11 @@ function generateLocalResponse(message: string, resolution: RouteResolution): st
   // 3. RAG document context response
   if (resolution.ragContext) {
     const snippet = resolution.ragContext.slice(0, 320).trim();
-    return `📄 **[DOCUMENT RAG ANALYSIS]**\n\nBased on the uploaded document (**${ragEngine.documentName}**):\n\n> "${snippet}..."\n\n*Semantic context successfully verified and indexed across Cosmic Relic's Mind & Reality cores.*`;
+    return `📄 **[DOCUMENT RAG ANALYSIS]**\n\nBased on the uploaded document (**${currentRag.documentName}**):\n\n> "${snippet}..."\n\n*Semantic context successfully verified and indexed across Cosmic Relic's Mind & Reality cores.*`;
   }
 
   // 4. Memory recall response
-  const recalled = memory.recall(message);
+  const recalled = currentMemory.recall(message);
   if (recalled) {
     return `🧠 **[TIME CORE MEMORY RECALL]**\n\n${recalled}`;
   }
@@ -610,7 +687,7 @@ function generateLocalResponse(message: string, resolution: RouteResolution): st
 
   // 13. Memory depth telemetry
   if (q.includes("memory") || q.includes("history")) {
-    return `🧠 **[TIME CORE TELEMETRY]**\n\nCurrent session memory depth: **${memory.depth} interactions** recorded. Temporal continuity is active and synchronized.`;
+    return `🧠 **[TIME CORE TELEMETRY]**\n\nCurrent session memory depth: **${currentMemory.depth} interactions** recorded. Temporal continuity is active and synchronized.`;
   }
 
   // 14. Comprehensive Domain Intelligence & Real Explanations
@@ -915,30 +992,292 @@ app.get('/', (_req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, 'templates', 'index.html'));
 });
 
+/* =========================================================================
+   AUTHENTICATION & SESSION API (GOOGLE SHEETS INTEGRATION)
+   ========================================================================= */
+
+// POST /api/auth/register
+app.post('/api/auth/register', async (req: Request, res: Response) => {
+  try {
+    const { username, email, password, confirmPassword } = req.body || {};
+
+    if (!username || typeof username !== 'string' || username.trim().length < 3) {
+      res.status(400).json({ ok: false, error: 'Username must be at least 3 characters long.' });
+      return;
+    }
+    const cleanUsername = username.trim();
+    if (!/^[a-zA-Z0-9_]+$/.test(cleanUsername)) {
+      res.status(400).json({ ok: false, error: 'Username can only contain letters, numbers, and underscores.' });
+      return;
+    }
+
+    if (!email || typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      res.status(400).json({ ok: false, error: 'Please enter a valid email address.' });
+      return;
+    }
+    const cleanEmail = email.trim().toLowerCase();
+
+    if (!password || typeof password !== 'string' || password.length < 6) {
+      res.status(400).json({ ok: false, error: 'Password must be at least 6 characters long.' });
+      return;
+    }
+
+    if (password.toLowerCase() === 'password' || password === '123456' || password === '12345678') {
+      res.status(400).json({ ok: false, error: 'Password is too common. Please choose a stronger password.' });
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      res.status(400).json({ ok: false, error: 'Passwords do not match.' });
+      return;
+    }
+
+    // Pre-check for duplicate username
+    try {
+      const existingUser = await callGoogleSheetsDB({
+        action: 'findUser',
+        username: cleanUsername
+      });
+      if (existingUser && existingUser.ok && existingUser.user) {
+        res.status(409).json({ ok: false, error: 'Username is already taken. Please choose another.' });
+        return;
+      }
+    } catch (_checkErr) {
+      // Proceed to createUser which also verifies in the Google Sheet backend
+    }
+
+    // Hash password with bcrypt before Google Sheet persistence
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    // Call Google Apps Script backend
+    const dbRes = await callGoogleSheetsDB({
+      action: 'createUser',
+      username: cleanUsername,
+      email: cleanEmail,
+      passwordHash
+    });
+
+    if (!dbRes.ok) {
+      res.status(400).json({ ok: false, error: dbRes.error || 'Failed to create user account' });
+      return;
+    }
+
+    // Auto-authenticate upon registration
+    const sessionToken = 'cs_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    const user: UserSession = {
+      userId: dbRes.user.userId,
+      username: dbRes.user.username,
+      email: dbRes.user.email,
+      createdAt: dbRes.user.createdAt,
+      status: dbRes.user.status,
+      isGuest: false
+    };
+    sessions.set(sessionToken, user);
+
+    res.cookie('cosmic_session', sessionToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    });
+
+    res.json({
+      ok: true,
+      message: 'Account created and authenticated successfully.',
+      user: {
+        userId: user.userId,
+        username: user.username,
+        email: user.email,
+        createdAt: user.createdAt,
+        status: user.status
+      }
+    });
+  } catch (err: any) {
+    console.error('[Cosmic Auth] Registration error:', err);
+    res.status(500).json({ ok: false, error: 'Registration service error: ' + (err?.message || 'Server error') });
+  }
+});
+
+// POST /api/auth/login
+app.post('/api/auth/login', async (req: Request, res: Response) => {
+  try {
+    const { username, password } = req.body || {};
+
+    if (!username || !password || typeof username !== 'string' || typeof password !== 'string') {
+      res.status(400).json({ ok: false, error: 'Username and password are required.' });
+      return;
+    }
+
+    const cleanUsername = username.trim();
+
+    // Query Google Apps Script
+    const dbRes = await callGoogleSheetsDB({
+      action: 'findUser',
+      username: cleanUsername
+    });
+
+    if (!dbRes.ok || !dbRes.user) {
+      res.status(401).json({ ok: false, error: 'Invalid username or password.' });
+      return;
+    }
+
+    // Verify bcrypt hash
+    const match = await bcrypt.compare(password, dbRes.user.passwordHash);
+    if (!match) {
+      res.status(401).json({ ok: false, error: 'Invalid username or password.' });
+      return;
+    }
+
+    // Create session
+    const sessionToken = 'cs_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    const user: UserSession = {
+      userId: dbRes.user.userId,
+      username: dbRes.user.username,
+      email: dbRes.user.email,
+      createdAt: dbRes.user.createdAt,
+      status: dbRes.user.status,
+      isGuest: false
+    };
+    sessions.set(sessionToken, user);
+
+    res.cookie('cosmic_session', sessionToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    });
+
+    res.json({
+      ok: true,
+      message: 'Logged in successfully.',
+      user: {
+        userId: user.userId,
+        username: user.username,
+        email: user.email,
+        createdAt: user.createdAt,
+        status: user.status
+      }
+    });
+  } catch (err: any) {
+    console.error('[Cosmic Auth] Login error:', err);
+    res.status(500).json({ ok: false, error: 'Authentication service error: ' + (err?.message || 'Server error') });
+  }
+});
+
+// POST /api/auth/guest
+app.post('/api/auth/guest', (_req: Request, res: Response) => {
+  const guestToken = 'guest_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+  sessions.set(guestToken, {
+    userId: guestToken,
+    username: 'Guest Explorer',
+    email: '',
+    createdAt: new Date().toISOString(),
+    status: 'guest',
+    isGuest: true
+  });
+
+  res.cookie('cosmic_session', guestToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  });
+
+  res.json({
+    ok: true,
+    isGuest: true,
+    user: {
+      username: 'Guest Explorer',
+      status: 'guest'
+    }
+  });
+});
+
+// POST /api/auth/logout
+app.post('/api/auth/logout', (req: Request, res: Response) => {
+  const token = req.cookies?.cosmic_session;
+  if (token) {
+    sessions.delete(token);
+  }
+  res.clearCookie('cosmic_session');
+  res.json({ ok: true, message: 'Logged out successfully.' });
+});
+
+// GET /api/auth/me
+app.get('/api/auth/me', (req: Request, res: Response) => {
+  const token = req.cookies?.cosmic_session;
+  const session = token ? sessions.get(token) : null;
+
+  if (session && !session.isGuest) {
+    res.json({
+      ok: true,
+      authenticated: true,
+      isGuest: false,
+      user: {
+        userId: session.userId,
+        username: session.username,
+        email: session.email,
+        createdAt: session.createdAt,
+        status: session.status
+      }
+    });
+    return;
+  }
+
+  if (session && session.isGuest) {
+    res.json({
+      ok: true,
+      authenticated: false,
+      isGuest: true,
+      user: {
+        username: session.username,
+        status: 'guest'
+      }
+    });
+    return;
+  }
+
+  res.json({
+    ok: true,
+    authenticated: false,
+    isGuest: false,
+    user: null
+  });
+});
+
 // GET /health - Telemetry and health check
-app.get('/health', (_req: Request, res: Response) => {
+app.get('/health', (req: Request, res: Response) => {
+  const sessionKey = getSessionKey(req);
+  const currentMemory = getMemory(sessionKey);
+  const currentRag = getRAG(sessionKey);
+
   res.json({
     status: 'online',
     system: 'Cosmic Relic AI',
     version: '1.0.0',
-    memoryDepth: memory.depth,
-    documentLoaded: ragEngine.isLoaded,
-    documentName: ragEngine.documentName,
-    chunks: ragEngine.chunkCount
+    memoryDepth: currentMemory.depth,
+    documentLoaded: currentRag.isLoaded,
+    documentName: currentRag.documentName,
+    chunks: currentRag.chunkCount
   });
 });
 
 // GET /memory - Retrieve conversation memory state
-app.get('/memory', (_req: Request, res: Response) => {
+app.get('/memory', (req: Request, res: Response) => {
+  const sessionKey = getSessionKey(req);
+  const currentMemory = getMemory(sessionKey);
+
   res.json({
-    depth: memory.depth,
-    turns: memory.getAll()
+    depth: currentMemory.depth,
+    turns: currentMemory.getAll()
   });
 });
 
 // POST /reset - Clear conversation memory
-app.post('/reset', (_req: Request, res: Response) => {
-  memory.clear();
+app.post('/reset', (req: Request, res: Response) => {
+  const sessionKey = getSessionKey(req);
+  const currentMemory = getMemory(sessionKey);
+  currentMemory.clear();
   res.json({ success: true, message: 'Cosmic Relic Time Core memory reset successfully.' });
 });
 
@@ -950,6 +1289,9 @@ app.post('/upload', upload.single('file'), async (req: Request, res: Response) =
       res.status(400).json({ error: 'No file received in upload payload.' });
       return;
     }
+
+    const sessionKey = getSessionKey(req);
+    const currentRag = getRAG(sessionKey);
 
     let extractedText = '';
     const isPdf = file.mimetype === 'application/pdf' || file.originalname.toLowerCase().endsWith('.pdf');
@@ -972,9 +1314,9 @@ app.post('/upload', upload.single('file'), async (req: Request, res: Response) =
       extractedText = `Document: ${file.originalname}\nSize: ${file.size} bytes.\nContent parsed successfully.`;
     }
 
-    const chunkCount = ragEngine.loadDocument(file.originalname, file.size, extractedText, 500, 100);
+    const chunkCount = currentRag.loadDocument(file.originalname, file.size, extractedText, 500, 100);
 
-    console.log(`[Cosmic RAG] Ingested "${file.originalname}" (${file.size} bytes) -> ${chunkCount} chunks.`);
+    console.log(`[Cosmic RAG] Ingested "${file.originalname}" (${file.size} bytes) -> ${chunkCount} chunks [Session: ${sessionKey}].`);
 
     res.json({
       success: true,
@@ -999,6 +1341,10 @@ app.post('/chat_stream', async (req: Request, res: Response) => {
     return;
   }
 
+  const sessionKey = getSessionKey(req);
+  const currentMemory = getMemory(sessionKey);
+  const currentRag = getRAG(sessionKey);
+
   // Set streaming headers
   res.setHeader('Content-Type', 'text/plain; charset=utf-8');
   res.setHeader('Transfer-Encoding', 'chunked');
@@ -1006,15 +1352,15 @@ app.post('/chat_stream', async (req: Request, res: Response) => {
   res.setHeader('Connection', 'keep-alive');
 
   // 1. Route intent through Cosmic Router
-  const resolution = routeUserMessage(userMessage);
+  const resolution = routeUserMessage(userMessage, currentRag);
 
   // 2. Commit user message to memory
-  memory.add('user', userMessage, resolution.intent);
+  currentMemory.add('user', userMessage, resolution.intent);
 
   // If tool intent was resolved, execute immediately
   if (resolution.toolResult) {
-    const toolOutput = generateLocalResponse(userMessage, resolution);
-    memory.add('assistant', toolOutput, 'tool');
+    const toolOutput = generateLocalResponse(userMessage, resolution, currentMemory, currentRag);
+    currentMemory.add('assistant', toolOutput, 'tool');
     res.write(toolOutput);
     res.end();
     return;
@@ -1023,7 +1369,7 @@ app.post('/chat_stream', async (req: Request, res: Response) => {
   // If RAG query with no context was resolved
   if (resolution.noContextFound) {
     const noContextMsg = 'I could not find that information in the uploaded document.';
-    memory.add('assistant', noContextMsg, 'rag');
+    currentMemory.add('assistant', noContextMsg, 'rag');
     res.write(noContextMsg);
     res.end();
     return;
@@ -1035,7 +1381,7 @@ app.post('/chat_stream', async (req: Request, res: Response) => {
     const systemInstruction = buildSystemPrompt(resolution.ragContext);
 
     // Prepare conversation history with alternating roles
-    const historyTurns = memory.getAll().slice(-12, -1);
+    const historyTurns = currentMemory.getAll().slice(-12, -1);
     const contents: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> = [];
 
     for (const turn of historyTurns) {
@@ -1080,7 +1426,7 @@ app.post('/chat_stream', async (req: Request, res: Response) => {
         }
 
         if (fullResponse) {
-          memory.add('assistant', fullResponse, resolution.intent);
+          currentMemory.add('assistant', fullResponse, resolution.intent);
           res.end();
           return;
         }
@@ -1091,8 +1437,8 @@ app.post('/chat_stream', async (req: Request, res: Response) => {
   }
 
   // 4. Local offline intelligence engine fallback
-  const fallback = generateLocalResponse(userMessage, resolution);
-  memory.add('assistant', fallback, resolution.intent);
+  const fallback = generateLocalResponse(userMessage, resolution, currentMemory, currentRag);
+  currentMemory.add('assistant', fallback, resolution.intent);
 
   // Stream in realistic micro-bursts for natural UI rendering
   const words = fallback.split(' ');
@@ -1113,13 +1459,17 @@ app.post('/chat', async (req: Request, res: Response) => {
     return;
   }
 
-  const resolution = routeUserMessage(userMessage);
-  memory.add('user', userMessage, resolution.intent);
+  const sessionKey = getSessionKey(req);
+  const currentMemory = getMemory(sessionKey);
+  const currentRag = getRAG(sessionKey);
+
+  const resolution = routeUserMessage(userMessage, currentRag);
+  currentMemory.add('user', userMessage, resolution.intent);
 
   // If tool intent
   if (resolution.toolResult) {
-    const toolOutput = generateLocalResponse(userMessage, resolution);
-    memory.add('assistant', toolOutput, 'tool');
+    const toolOutput = generateLocalResponse(userMessage, resolution, currentMemory, currentRag);
+    currentMemory.add('assistant', toolOutput, 'tool');
     res.json({ response: toolOutput });
     return;
   }
@@ -1127,7 +1477,7 @@ app.post('/chat', async (req: Request, res: Response) => {
   // If RAG no context
   if (resolution.noContextFound) {
     const noContextMsg = 'I could not find that information in the uploaded document.';
-    memory.add('assistant', noContextMsg, 'rag');
+    currentMemory.add('assistant', noContextMsg, 'rag');
     res.json({ response: noContextMsg });
     return;
   }
@@ -1136,7 +1486,7 @@ app.post('/chat', async (req: Request, res: Response) => {
   const aiClient = getGeminiClient();
   if (aiClient) {
     const systemInstruction = buildSystemPrompt(resolution.ragContext);
-    const historyTurns = memory.getAll().slice(-12, -1);
+    const historyTurns = currentMemory.getAll().slice(-12, -1);
     const contents: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> = [];
 
     for (const turn of historyTurns) {
@@ -1172,7 +1522,7 @@ app.post('/chat', async (req: Request, res: Response) => {
 
         const responseText = result.text || '';
         if (responseText) {
-          memory.add('assistant', responseText, resolution.intent);
+          currentMemory.add('assistant', responseText, resolution.intent);
           res.json({ response: responseText });
           return;
         }
@@ -1182,8 +1532,8 @@ app.post('/chat', async (req: Request, res: Response) => {
     }
   }
 
-  const fallback = generateLocalResponse(userMessage, resolution);
-  memory.add('assistant', fallback, resolution.intent);
+  const fallback = generateLocalResponse(userMessage, resolution, currentMemory, currentRag);
+  currentMemory.add('assistant', fallback, resolution.intent);
   res.json({ response: fallback });
 });
 
