@@ -6,7 +6,7 @@
     "dev": "tsx server.ts",
     "build": "tsc",
     "lint": "tsc --noEmit",
-    "test": "tsx scripts/validate.ts && tsx scripts/test_pdf.ts",
+    "test": "tsx scripts/validate.ts && tsx scripts/test_pdf.ts && tsx scripts/test_air_mouse.ts",
     "start": "tsx server.ts"
   },
   "dependencies": {

@@ -8305,6 +8305,382 @@ body.light-theme .dock-user-btn {
     color: #2B1E17 !important;
 }
 
+/* Chat Input Document Badge */
+.chat-doc-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    font-size: 11px;
+    font-family: "Inter", sans-serif;
+    color: #e2e8f0;
+    white-space: nowrap;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
+}
+
+.chat-doc-badge .chat-doc-icon {
+    font-size: 11px;
+    line-height: 1;
+}
+
+.chat-doc-badge .chat-doc-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+html.light-theme .chat-doc-badge,
+body.light-theme .chat-doc-badge {
+    background: rgba(66, 45, 30, 0.08) !important;
+    border: 1px solid rgba(66, 45, 30, 0.2) !important;
+    color: #3B281C !important;
+}
+
+/* =========================================================================
+   14. REALITY CORE — AIR MOUSE (CLIENT-SIDE COMPUTER VISION INTERFACE)
+   ========================================================================= */
+
+/* Dock Air Mouse Action */
+.dock-air-mouse-btn {
+    position: relative;
+}
+
+.dock-air-mouse-btn.dock-air-mouse-active {
+    background: rgba(255, 79, 145, 0.18) !important;
+    border-color: rgba(255, 79, 145, 0.5) !important;
+    color: #ff4f91 !important;
+    box-shadow: 0 0 14px rgba(255, 79, 145, 0.35);
+}
+
+.dock-air-mouse-dot {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ff4f91;
+    display: none;
+    box-shadow: 0 0 6px #ff4f91;
+}
+
+.dock-air-mouse-active .dock-air-mouse-dot {
+    display: block;
+    animation: airMouseDotPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes airMouseDotPulse {
+    0%, 100% { transform: scale(1); opacity: 0.9; }
+    50% { transform: scale(1.35); opacity: 0.5; }
+}
+
+html.light-theme .dock-air-mouse-btn.dock-air-mouse-active,
+body.light-theme .dock-air-mouse-btn.dock-air-mouse-active {
+    background: rgba(217, 59, 120, 0.16) !important;
+    border-color: rgba(217, 59, 120, 0.45) !important;
+    color: #d93b78 !important;
+    box-shadow: 0 0 12px rgba(217, 59, 120, 0.25);
+}
+
+html.light-theme .dock-air-mouse-dot,
+body.light-theme .dock-air-mouse-dot {
+    background: #d93b78;
+    box-shadow: 0 0 6px #d93b78;
+}
+
+/* Virtual Air Cursor */
+.air-mouse-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 24px;
+    height: 24px;
+    margin-left: -12px;
+    margin-top: -12px;
+    pointer-events: none;
+    z-index: 999999;
+    will-change: transform;
+    transition: opacity 0.18s ease;
+}
+
+.air-mouse-cursor.air-mouse-hidden {
+    opacity: 0;
+}
+
+.air-mouse-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1.5px solid #ff4f91;
+    background: rgba(255, 79, 145, 0.12);
+    box-shadow: 0 0 10px rgba(255, 79, 145, 0.28);
+    transition: transform 0.14s ease, border-color 0.14s ease, background-color 0.14s ease;
+}
+
+.air-mouse-dot {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    margin-left: -2.5px;
+    margin-top: -2.5px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+    transition: transform 0.14s ease;
+}
+
+.air-mouse-icon {
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    font-family: monospace;
+    font-weight: 700;
+    color: #ff4f91;
+    text-shadow: 0 0 6px rgba(255, 79, 145, 0.6);
+    pointer-events: none;
+    display: none;
+}
+
+/* Gesture States on Virtual Cursor */
+.air-mouse-cursor.air-mouse-clicking .air-mouse-ring,
+.air-mouse-cursor.air-mouse-pinching .air-mouse-ring {
+    transform: scale(0.72);
+    border-color: #ffffff;
+    background: rgba(255, 255, 255, 0.35);
+}
+
+.air-mouse-cursor.air-mouse-fist .air-mouse-ring {
+    border-style: dashed;
+    border-color: #ff4f91;
+    transform: scale(1.15);
+}
+
+.air-mouse-cursor.air-mouse-palm,
+.air-mouse-cursor.air-mouse-idle {
+    opacity: 0.65;
+}
+
+.air-mouse-cursor.air-mouse-click-pulse .air-mouse-ring {
+    animation: airMouseClickFeedback 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.air-mouse-cursor.air-mouse-double-pulse .air-mouse-ring {
+    animation: airMouseDoubleFeedback 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes airMouseClickFeedback {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.65); border-color: #ffffff; background: rgba(255, 255, 255, 0.5); }
+    100% { transform: scale(1); }
+}
+
+@keyframes airMouseDoubleFeedback {
+    0% { transform: scale(1); }
+    35% { transform: scale(0.65); border-color: #ffffff; }
+    60% { transform: scale(0.95); }
+    80% { transform: scale(0.65); border-color: #ffffff; }
+    100% { transform: scale(1); }
+}
+
+html.light-theme .air-mouse-ring,
+body.light-theme .air-mouse-ring {
+    border-color: #d93b78;
+    background: rgba(217, 59, 120, 0.14);
+    box-shadow: 0 0 8px rgba(217, 59, 120, 0.2);
+}
+
+html.light-theme .air-mouse-dot,
+body.light-theme .air-mouse-dot {
+    background: #2b1e17;
+    box-shadow: 0 0 3px rgba(43, 30, 23, 0.6);
+}
+
+html.light-theme .air-mouse-icon,
+body.light-theme .air-mouse-icon {
+    color: #d93b78;
+    text-shadow: 0 0 4px rgba(217, 59, 120, 0.4);
+}
+
+/* Floating Status HUD */
+.air-mouse-hud {
+    position: fixed;
+    top: 76px;
+    right: 24px;
+    z-index: 99990;
+    pointer-events: auto;
+    user-select: none;
+    transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.air-mouse-hud.air-mouse-hud-hidden {
+    opacity: 0;
+    transform: translateY(-8px);
+    pointer-events: none;
+}
+
+.air-mouse-hud-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 12px;
+    border-radius: 9999px;
+    background: rgba(14, 15, 20, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.6),
+        0 2px 8px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.air-mouse-hud-core-symbol {
+    font-size: 13px;
+    color: #ff4f91;
+    line-height: 1;
+}
+
+.air-mouse-hud-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.air-mouse-hud-title {
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+    font-family: "Inter", sans-serif;
+    line-height: 1;
+}
+
+.air-mouse-hud-sub {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #ffffff;
+    font-family: "Inter", sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    line-height: 1.2;
+}
+
+.air-mouse-hud-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ff4f91;
+    box-shadow: 0 0 6px #ff4f91;
+    display: inline-block;
+    animation: airMouseDotPulse 1.8s ease-in-out infinite;
+}
+
+.air-mouse-hud-badge {
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 9.5px;
+    font-family: "Inter", sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: rgba(255, 79, 145, 0.15);
+    border: 1px solid rgba(255, 79, 145, 0.35);
+    color: #ff4f91;
+    white-space: nowrap;
+}
+
+.air-mouse-hud-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 10px;
+    cursor: pointer;
+    outline: none;
+    padding: 0;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.air-mouse-hud-close:hover {
+    background: rgba(255, 79, 145, 0.25);
+    border-color: rgba(255, 79, 145, 0.5);
+    color: #ffffff;
+}
+
+/* Light Theme Overrides for HUD */
+html.light-theme .air-mouse-hud-content,
+body.light-theme .air-mouse-hud-content {
+    background: rgba(246, 241, 232, 0.94);
+    border: 1px solid rgba(56, 38, 27, 0.18);
+    box-shadow:
+        0 10px 28px rgba(43, 30, 23, 0.15),
+        0 2px 6px rgba(43, 30, 23, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+html.light-theme .air-mouse-hud-core-symbol,
+body.light-theme .air-mouse-hud-core-symbol {
+    color: #d93b78;
+}
+
+html.light-theme .air-mouse-hud-title,
+body.light-theme .air-mouse-hud-title {
+    color: rgba(43, 30, 23, 0.55);
+}
+
+html.light-theme .air-mouse-hud-sub,
+body.light-theme .air-mouse-hud-sub {
+    color: #2b1e17;
+}
+
+html.light-theme .air-mouse-hud-dot,
+body.light-theme .air-mouse-hud-dot {
+    background: #d93b78;
+    box-shadow: 0 0 6px #d93b78;
+}
+
+html.light-theme .air-mouse-hud-badge,
+body.light-theme .air-mouse-hud-badge {
+    background: rgba(217, 59, 120, 0.12);
+    border: 1px solid rgba(217, 59, 120, 0.3);
+    color: #d93b78;
+}
+
+html.light-theme .air-mouse-hud-close,
+body.light-theme .air-mouse-hud-close {
+    background: rgba(43, 30, 23, 0.08);
+    border: 1px solid rgba(43, 30, 23, 0.16);
+    color: #2b1e17;
+}
+
+html.light-theme .air-mouse-hud-close:hover,
+body.light-theme .air-mouse-hud-close:hover {
+    background: rgba(217, 59, 120, 0.2);
+    border-color: rgba(217, 59, 120, 0.4);
+    color: #d93b78;
+}
+
+
 
 
 

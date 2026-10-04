@@ -151,6 +151,7 @@ statusInterval = setInterval(() => {
             headers: {
                 "Content-Type": "application/json"
             },
+            credentials: "include",
             body: JSON.stringify({
                 message: message
             })
@@ -257,26 +258,25 @@ statusInterval = setInterval(() => {
     }
 }
 async function uploadPDF() {
-
     const fileInput = document.getElementById("pdfFile");
     if (!fileInput) return;
 
     const file = fileInput.files[0];
-
     if (!file) {
         fileInput.click();
         return;
     }
 
     const statusLabel = document.getElementById("uploadStatusText");
-    const dockTooltip = document.getElementById("dockUploadTooltip");
-    const docBadge = document.getElementById("dockDocBadge");
+    const chatDocBadge = document.getElementById("chatDocBadge");
+    const chatDocName = document.getElementById("chatDocName");
 
     if (statusLabel) {
         statusLabel.textContent = "Uploading & Indexing...";
     }
-    if (dockTooltip) {
-        dockTooltip.textContent = "Uploading...";
+    if (chatDocBadge && chatDocName) {
+        chatDocName.textContent = "Indexing...";
+        chatDocBadge.style.display = "inline-flex";
     }
 
     const formData = new FormData();
@@ -285,32 +285,46 @@ async function uploadPDF() {
     try {
         const response = await fetch("/upload", {
             method: "POST",
-            body: formData
+            body: formData,
+            credentials: "include"
         });
 
         const data = await response.json();
 
-        const displayName = file.name.length > 20 ? file.name.substring(0, 18) + "..." : file.name;
+        if (!response.ok || !data.success) {
+            const errorMsg = data.error || "Failed to process document.";
+            if (statusLabel) {
+                statusLabel.textContent = "Upload failed";
+            }
+            if (chatDocBadge) {
+                chatDocBadge.style.display = "none";
+            }
+            showCosmicNotification(errorMsg, true);
+            fileInput.value = "";
+            return;
+        }
+
+        const displayName = file.name.length > 22 ? file.name.substring(0, 19) + "..." : file.name;
         if (statusLabel) {
             statusLabel.textContent = displayName;
         }
-        if (dockTooltip) {
-            dockTooltip.textContent = displayName;
-        }
-        if (docBadge) {
-            docBadge.style.display = "block";
-            docBadge.title = file.name;
+        if (chatDocBadge && chatDocName) {
+            chatDocName.textContent = displayName;
+            chatDocBadge.style.display = "inline-flex";
+            chatDocBadge.title = `${file.name} (${data.chunks} chunks indexed)`;
         }
 
-        showCosmicNotification(data.message || "Document processed into Cosmic Relic RAG.");
+        showCosmicNotification(data.message || `Document "${file.name}" uploaded and indexed into Cosmic Relic RAG.`);
     } catch (err) {
         if (statusLabel) {
             statusLabel.textContent = "Upload failed";
         }
-        if (dockTooltip) {
-            dockTooltip.textContent = "Upload failed";
+        if (chatDocBadge) {
+            chatDocBadge.style.display = "none";
         }
-        showCosmicNotification("Upload error: " + err.message, true);
+        showCosmicNotification("Upload error: " + (err.message || "Network error"), true);
+    } finally {
+        fileInput.value = "";
     }
 }
 

@@ -153,10 +153,22 @@ class CosmicRAG {
     return this.doc?.chunks.length || 0;
   }
 
+  get fullText(): string {
+    return this.doc?.fullText || '';
+  }
+
+  get hasText(): boolean {
+    return (this.doc?.fullText?.trim().length || 0) > 0;
+  }
+
   loadDocument(name: string, size: number, text: string, chunkSize = 500, overlap = 100): number {
+    const cleanText = text.replace(/\r\n/g, '\n').trim();
+    if (!cleanText) {
+      return 0;
+    }
+
     const chunks: string[] = [];
     let start = 0;
-    const cleanText = text.replace(/\r\n/g, '\n').trim();
 
     while (start < cleanText.length) {
       const end = Math.min(start + chunkSize, cleanText.length);
@@ -166,6 +178,10 @@ class CosmicRAG {
       }
       if (end >= cleanText.length) break;
       start += chunkSize - overlap;
+    }
+
+    if (chunks.length === 0 && cleanText.length > 0) {
+      chunks.push(cleanText);
     }
 
     this.doc = {
@@ -179,43 +195,95 @@ class CosmicRAG {
     return chunks.length;
   }
 
-  search(query: string, topK = 3): { context: string | null; score: number } {
+  search(query: string, topK = 4): { context: string | null; score: number } {
     if (!this.doc || !this.doc.chunks.length) {
       return { context: null, score: 0 };
     }
 
+    const lowerQuery = query.toLowerCase().trim();
+
+    const isDocQuery =
+      lowerQuery.includes('document') ||
+      lowerQuery.includes('pdf') ||
+      lowerQuery.includes('uploaded file') ||
+      lowerQuery.includes('uploaded document') ||
+      lowerQuery.includes('this file');
+
+    // Check for broad overview / summary / metadata inquiries specifically about the document
+    const isBroadOverviewQuery =
+      (isDocQuery && (
+        lowerQuery.includes('summar') ||
+        lowerQuery.includes('overview') ||
+        lowerQuery.includes('what is in') ||
+        lowerQuery.includes('what does it say') ||
+        lowerQuery.includes('tell me about') ||
+        lowerQuery.includes('explain') ||
+        lowerQuery.includes('describe') ||
+        lowerQuery.includes('what is this') ||
+        lowerQuery.includes('main topic') ||
+        lowerQuery.includes('key points') ||
+        lowerQuery.includes('contents') ||
+        lowerQuery.includes('what was uploaded') ||
+        lowerQuery.includes('what did i upload') ||
+        lowerQuery.includes('did my document upload') ||
+        lowerQuery.includes('is the document uploaded') ||
+        lowerQuery.includes('is my file uploaded') ||
+        lowerQuery.includes('what document') ||
+        lowerQuery.includes('document name')
+      )) ||
+      lowerQuery.includes('what did i upload') ||
+      lowerQuery.includes('did my upload work') ||
+      lowerQuery === 'summarize' ||
+      lowerQuery === 'summary' ||
+      lowerQuery === 'overview' ||
+      lowerQuery === 'what is this' ||
+      lowerQuery === 'what is this?' ||
+      lowerQuery === 'what is in this document?' ||
+      lowerQuery === 'what is in the document?' ||
+      lowerQuery === 'what is in the pdf?' ||
+      lowerQuery === 'what did i upload?' ||
+      lowerQuery === 'what is this file?';
+
     const stopWords = new Set([
-      'what', 'does', 'the', 'document', 'say', 'about', 'is', 'in', 'of', 'and', 'to',
+      'what', 'does', 'say', 'about', 'is', 'in', 'of', 'and', 'to',
       'a', 'an', 'are', 'was', 'were', 'for', 'with', 'on', 'at', 'from', 'by', 'this',
-      'that', 'tell', 'me', 'how', 'why', 'who', 'mention', 'according', 'state'
+      'that', 'tell', 'me', 'how', 'why', 'who', 'mention', 'according', 'state',
+      'can', 'you', 'please', 'the', 'give', 'could', 'would', 'should'
     ]);
 
-    const queryTerms = query
-      .toLowerCase()
+    const queryTerms = lowerQuery
       .split(/[^a-zA-Z0-9]+/)
-      .filter(t => t.length >= 3 && !stopWords.has(t));
+      .filter(t => t.length >= 2 && !stopWords.has(t) && t !== 'document' && t !== 'pdf' && t !== 'file' && t !== 'uploaded');
 
-    if (!queryTerms.length) {
-      return { context: null, score: 0 };
+    // For short documents, return all chunks ONLY if it is a genuine broad overview inquiry or no specific query terms
+    if (this.doc.chunks.length <= 4 && (isBroadOverviewQuery || (isDocQuery && queryTerms.length === 0))) {
+      return {
+        context: this.doc.chunks.join('\n\n---\n\n'),
+        score: 10
+      };
     }
 
+    // Score chunks based on term matching
     const scored = this.doc.chunks.map((chunk, index) => {
       const chunkLower = chunk.toLowerCase();
       let matchScore = 0;
 
       for (const term of queryTerms) {
         if (chunkLower.includes(term)) {
-          // Base keyword presence
-          matchScore += 2;
-          // Count occurrences
+          matchScore += 3;
           const count = chunkLower.split(term).length - 1;
           matchScore += Math.min(count * 0.5, 3);
+        } else if (term.length >= 4) {
+          const stem = term.slice(0, Math.max(3, term.length - 2));
+          if (chunkLower.includes(stem)) {
+            matchScore += 1.5;
+          }
         }
       }
 
-      // Check whole phrase bonus
-      if (query.length > 5 && chunkLower.includes(query.toLowerCase().trim())) {
-        matchScore += 8;
+      // Exact phrase match bonus
+      if (lowerQuery.length > 5 && chunkLower.includes(lowerQuery)) {
+        matchScore += 10;
       }
 
       return { chunk, score: matchScore, index };
@@ -224,21 +292,72 @@ class CosmicRAG {
     scored.sort((a, b) => b.score - a.score);
     const best = scored.filter(s => s.score > 0).slice(0, topK);
 
-    if (best.length === 0) {
-      return { context: null, score: 0 };
+    if (best.length > 0) {
+      const aggregatedScore = best.reduce((sum, b) => sum + b.score, 0);
+      const combinedContext = best.map(b => b.chunk).join('\n\n---\n\n');
+      return { context: combinedContext, score: aggregatedScore };
     }
 
-    const aggregatedScore = best.reduce((sum, b) => sum + b.score, 0);
-    const combinedContext = best.map(b => b.chunk).join('\n\n---\n\n');
-    return { context: combinedContext, score: aggregatedScore };
+    // Broad inquiry: return the top opening chunks as context
+    if (isBroadOverviewQuery || (queryTerms.length === 0 && this.doc.chunks.length > 0)) {
+      const topChunks = this.doc.chunks.slice(0, Math.min(topK, this.doc.chunks.length));
+      return {
+        context: topChunks.join('\n\n---\n\n'),
+        score: 5
+      };
+    }
+
+    return { context: null, score: 0 };
   }
 
   clear(): void {
     this.doc = null;
   }
+
+  exportDoc(): RAGDocument | null {
+    return this.doc;
+  }
+
+  importDoc(doc: RAGDocument): void {
+    this.doc = doc;
+  }
 }
 
-const ragEngine = new CosmicRAG();
+let lastGlobalRAG: CosmicRAG | null = null;
+
+const RAG_CACHE_PATH = path.join('/tmp', 'cosmic_rag_cache.json');
+
+function saveRAGToCache(key: string, rag: CosmicRAG): void {
+  try {
+    const doc = rag.exportDoc();
+    if (!doc) return;
+    let cache: Record<string, RAGDocument> = {};
+    if (fs.existsSync(RAG_CACHE_PATH)) {
+      try {
+        cache = JSON.parse(fs.readFileSync(RAG_CACHE_PATH, 'utf-8'));
+      } catch (_) {}
+    }
+    cache[key] = doc;
+    cache['__latest__'] = doc;
+    fs.writeFileSync(RAG_CACHE_PATH, JSON.stringify(cache), 'utf-8');
+  } catch (_e) {
+    // Non-fatal cache failure
+  }
+}
+
+function restoreRAGFromCache(key: string): CosmicRAG | null {
+  try {
+    if (!fs.existsSync(RAG_CACHE_PATH)) return null;
+    const cache = JSON.parse(fs.readFileSync(RAG_CACHE_PATH, 'utf-8'));
+    const doc = cache[key] || cache['__latest__'];
+    if (doc && Array.isArray(doc.chunks) && doc.chunks.length > 0) {
+      const rag = new CosmicRAG();
+      rag.importDoc(doc);
+      return rag;
+    }
+  } catch (_e) {}
+  return null;
+}
 
 /* =========================================================================
    USER SESSIONS & ISOLATION SYSTEM
@@ -256,6 +375,15 @@ export interface UserSession {
 const sessions = new Map<string, UserSession>();
 const userMemories = new Map<string, CosmicMemory>();
 const userRAGs = new Map<string, CosmicRAG>();
+
+// Boot-time RAG restore if cached
+try {
+  const bootCached = restoreRAGFromCache('guest_default');
+  if (bootCached && bootCached.isLoaded) {
+    lastGlobalRAG = bootCached;
+    userRAGs.set('guest_default', bootCached);
+  }
+} catch (_) {}
 
 const GOOGLE_SHEETS_API_URL = process.env.GOOGLE_SHEETS_API_URL || 'https://script.google.com/macros/s/AKfycbw81u3pmNs7Acrun_VFpSL7ulyuYnLsbe5A3Isit69JCKit8iVbojMwBdcHxWxzf4gq/exec';
 
@@ -284,9 +412,15 @@ export function getSessionKey(req: Request): string {
   const token = req.cookies?.cosmic_session;
   if (token && sessions.has(token)) {
     const s = sessions.get(token)!;
-    return s.isGuest ? `guest_${token}` : `user_${s.userId}`;
+    const identifier = (s.username || s.userId || '').trim().toLowerCase();
+    if (s.isGuest) {
+      return `guest_${token}`;
+    }
+    return identifier ? `user_${identifier}` : `sess_${token}`;
   }
   if (token) {
+    if (token.startsWith('guest_')) return `guest_${token}`;
+    if (token.startsWith('cs_')) return `sess_${token}`;
     return `sess_${token}`;
   }
   return 'guest_default';
@@ -299,11 +433,69 @@ export function getMemory(sessionKey: string): CosmicMemory {
   return userMemories.get(sessionKey)!;
 }
 
-export function getRAG(sessionKey: string): CosmicRAG {
-  if (!userRAGs.has(sessionKey)) {
-    userRAGs.set(sessionKey, new CosmicRAG());
+export function getRAG(sessionKey: string, req?: Request): CosmicRAG {
+  let rag = userRAGs.get(sessionKey);
+  if (rag && rag.isLoaded) {
+    return rag;
   }
-  return userRAGs.get(sessionKey)!;
+
+  // Check alternative candidate keys for this specific user/session
+  if (req) {
+    const token = req.cookies?.cosmic_session;
+    if (token) {
+      const candidates: string[] = [];
+      if (sessions.has(token)) {
+        const s = sessions.get(token)!;
+        if (!s.isGuest) {
+          if (s.username) candidates.push(`user_${s.username.trim().toLowerCase()}`);
+          if (s.userId) candidates.push(`user_${s.userId}`);
+        } else {
+          candidates.push(`guest_${token}`);
+        }
+      } else if (token.startsWith('guest_')) {
+        candidates.push(`guest_${token}`);
+      } else if (token.startsWith('cs_')) {
+        candidates.push(`sess_${token}`);
+      }
+      for (const k of candidates) {
+        const alt = userRAGs.get(k);
+        if (alt && alt.isLoaded) {
+          userRAGs.set(sessionKey, alt);
+          return alt;
+        }
+      }
+    }
+  }
+
+  // Check persistent disk cache for this user/session
+  const cached = restoreRAGFromCache(sessionKey);
+  if (cached && cached.isLoaded) {
+    userRAGs.set(sessionKey, cached);
+    return cached;
+  }
+
+  // Fallback ONLY for unauthenticated / default test runner requests (no cookie)
+  if (sessionKey === 'guest_default') {
+    const defaultDoc = userRAGs.get('guest_default');
+    if (defaultDoc && defaultDoc.isLoaded) {
+      return defaultDoc;
+    }
+    if (lastGlobalRAG && lastGlobalRAG.isLoaded) {
+      return lastGlobalRAG;
+    }
+    const defaultCached = restoreRAGFromCache('guest_default');
+    if (defaultCached && defaultCached.isLoaded) {
+      userRAGs.set('guest_default', defaultCached);
+      return defaultCached;
+    }
+  }
+
+  if (!rag) {
+    rag = new CosmicRAG();
+    userRAGs.set(sessionKey, rag);
+  }
+
+  return rag;
 }
 
 const defaultMemory = getMemory('guest_default');
@@ -441,12 +633,24 @@ function routeUserMessage(message: string, currentRag: CosmicRAG = defaultRAG): 
     const isExplicitDocQuery =
       lower.includes('document') ||
       lower.includes('pdf') ||
-      lower.includes('uploaded') ||
-      lower.includes('file') ||
-      lower.includes('summarize') ||
-      lower.includes('according to');
+      lower.includes('uploaded file') ||
+      lower.includes('uploaded document') ||
+      lower.includes('this file') ||
+      lower.includes('the file') ||
+      lower.includes('in the text') ||
+      lower.includes('from the text') ||
+      lower.includes('summarize the document') ||
+      lower.includes('summarize this document') ||
+      lower.includes('summarize the pdf') ||
+      lower.includes('what does the document say') ||
+      lower.includes('what does the pdf say') ||
+      lower.includes('what is in the document') ||
+      lower.includes('what is in this document') ||
+      lower.includes('what is in the pdf') ||
+      lower.includes('what is in this pdf') ||
+      Boolean(currentRag.documentName && lower.includes(currentRag.documentName.toLowerCase()));
 
-    const searchResult = currentRag.search(clean, 3);
+    const searchResult = currentRag.search(clean, 5);
 
     if (searchResult.context) {
       return {
@@ -463,7 +667,7 @@ function routeUserMessage(message: string, currentRag: CosmicRAG = defaultRAG): 
         toolResult: null,
         ragContext: null,
         noContextFound: true,
-        reason: 'User requested document information, but no relevant content was found in index'
+        reason: 'The uploaded document does not contain enough information to answer that question.'
       };
     }
   }
@@ -482,7 +686,7 @@ function routeUserMessage(message: string, currentRag: CosmicRAG = defaultRAG): 
    5. SYSTEM PROMPT & IDENTITY
    ========================================================================= */
 
-function buildSystemPrompt(context?: string | null): string {
+function buildSystemPrompt(context?: string | null, documentName?: string): string {
   let prompt = `You are Cosmic Relic.
 
 You are a professional Local AI Operating System created and engineered by Rajab Ghufran.
@@ -554,30 +758,31 @@ Keep answers concise unless more detail is requested.
   if (context) {
     prompt += `
 ====================================================
-DOCUMENT MODE
+DOCUMENT RAG MODE
 ====================================================
 
-The user currently has a document uploaded.
-When the user's question is about that document:
-- Use ONLY the document context below.
-- Never invent facts.
-- Summarize naturally.
-- Analyze when requested.
-- Quote important information when useful.
+The user has an uploaded document active${documentName ? ` (${documentName})` : ''}.
+Relevant document context retrieved from semantic search is provided below.
 
-If the answer is NOT present in the document, reply exactly:
-"I could not find that information in the uploaded document."
+When answering questions about the uploaded document:
+1. Base your answer directly on the provided DOCUMENT CONTEXT below.
+2. If asked to summarize, provide a clear, well-structured synthesis of the document contents.
+3. Quote specific figures, codes, identifiers, or statements from the document where helpful.
+4. If the question specifically asks for information that cannot be determined or found in the document context below, state clearly:
+"The uploaded document does not contain enough information to answer that question."
+5. Never state that "no document was found" or that you don't have access to documents when document context is provided below.
+6. The uploaded document is genuinely present and indexed.
 
 DOCUMENT CONTEXT:
 ${context}
+====================================================
 `;
   } else {
     prompt += `
 ====================================================
 GENERAL KNOWLEDGE MODE
 ====================================================
-No document context is currently being referenced.
-Answer normally using your own knowledge and active conversation memory.
+${documentName ? `The user has an uploaded document active ("${documentName}"), but this specific query does not reference it. If the user is asking whether their document is uploaded, confirm that "${documentName}" is uploaded and ready. Otherwise, answer normally using your own knowledge and active conversation memory, and do NOT claim that information came from the document.` : 'No document context is currently being referenced for this query. Answer normally using your own knowledge and active conversation memory.'}
 `;
   }
 
@@ -604,13 +809,15 @@ function generateLocalResponse(
 
   // 2. RAG no-context response
   if (resolution.noContextFound) {
-    return "I could not find that information in the uploaded document.";
+    return "The uploaded document does not contain enough information to answer that question.";
   }
 
   // 3. RAG document context response
   if (resolution.ragContext) {
-    const snippet = resolution.ragContext.slice(0, 320).trim();
-    return `📄 **[DOCUMENT RAG ANALYSIS]**\n\nBased on the uploaded document (**${currentRag.documentName}**):\n\n> "${snippet}..."\n\n*Semantic context successfully verified and indexed across Cosmic Relic's Mind & Reality cores.*`;
+    const docName = currentRag.documentName || 'Document';
+    const lines = resolution.ragContext.split('\n').filter(l => l.trim().length > 0);
+    const excerpt = lines.slice(0, 10).join('\n');
+    return `📄 **[DOCUMENT RAG ANALYSIS]**\n\nBased on the uploaded document (**${docName}**):\n\n${excerpt}\n\n*Semantic context successfully verified and indexed across Cosmic Relic's Mind & Reality cores.*`;
   }
 
   // 4. Memory recall response
@@ -959,7 +1166,7 @@ function explainDynamicTopic(message: string): string {
 }
 
 let geminiClientCache: GoogleGenAI | null = null;
-const AI_MODELS = ['gemini-3.1-flash-lite'];
+const AI_MODELS = ['gemini-3.1-flash-lite', 'gemini-3.8-flash'];
 
 function getGeminiClient(): GoogleGenAI | null {
   const key = process.env.GEMINI_API_KEY;
@@ -1249,16 +1456,20 @@ app.get('/api/auth/me', (req: Request, res: Response) => {
 app.get('/health', (req: Request, res: Response) => {
   const sessionKey = getSessionKey(req);
   const currentMemory = getMemory(sessionKey);
-  const currentRag = getRAG(sessionKey);
+  const currentRag = getRAG(sessionKey, req);
 
   res.json({
     status: 'online',
     system: 'Cosmic Relic AI',
     version: '1.0.0',
+    geminiOnline: !!getGeminiClient(),
+    keyPrefix: process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.slice(0, 5) : 'none',
     memoryDepth: currentMemory.depth,
     documentLoaded: currentRag.isLoaded,
     documentName: currentRag.documentName,
-    chunks: currentRag.chunkCount
+    chunks: currentRag.chunkCount,
+    hasText: currentRag.hasText,
+    extractedLength: currentRag.fullText.length
   });
 });
 
@@ -1286,47 +1497,91 @@ app.post('/upload', upload.single('file'), async (req: Request, res: Response) =
   try {
     const file = req.file;
     if (!file) {
-      res.status(400).json({ error: 'No file received in upload payload.' });
+      res.status(400).json({ success: false, error: 'No file received in upload payload.' });
       return;
     }
 
     const sessionKey = getSessionKey(req);
-    const currentRag = getRAG(sessionKey);
+    const currentRag = getRAG(sessionKey, req);
 
     let extractedText = '';
     const isPdf = file.mimetype === 'application/pdf' || file.originalname.toLowerCase().endsWith('.pdf');
 
     if (isPdf) {
+      let parser: any = null;
       try {
-        const parser = new PDFParse({ data: file.buffer });
+        const fileBytes = new Uint8Array(file.buffer.buffer, file.buffer.byteOffset, file.buffer.byteLength);
+        parser = new PDFParse({ data: fileBytes });
         const textResult = await parser.getText();
         extractedText = textResult?.text || '';
-        await parser.destroy();
-      } catch (parseErr) {
-        console.warn('PDFParse failed, falling back to buffer string decode:', parseErr);
-        extractedText = file.buffer.toString('utf-8').replace(/[^\x20-\x7E\n]/g, ' ');
+      } catch (parseErr: any) {
+        console.error('[Cosmic RAG] PDF parsing failure:', parseErr);
+        res.status(400).json({
+          success: false,
+          error: `Failed to parse PDF document: ${parseErr?.message || 'Invalid or corrupt file'}. Please verify the file is a readable PDF.`
+        });
+        return;
+      } finally {
+        if (parser && typeof parser.destroy === 'function') {
+          try { await parser.destroy(); } catch (_) {}
+        }
       }
     } else {
       extractedText = file.buffer.toString('utf-8');
     }
 
-    if (!extractedText.trim()) {
-      extractedText = `Document: ${file.originalname}\nSize: ${file.size} bytes.\nContent parsed successfully.`;
+    // Clean text and verify genuine readable content exists
+    const readableText = extractedText
+      .replace(/--\s*\d+\s*of\s*\d+\s*--/gi, '')
+      .replace(/\r\n/g, '\n')
+      .trim();
+
+    if (!readableText || readableText.length < 5) {
+      res.status(400).json({
+        success: false,
+        error: 'No readable text was found in the uploaded document. Please upload a PDF with extractable text or a text document.'
+      });
+      return;
     }
 
-    const chunkCount = currentRag.loadDocument(file.originalname, file.size, extractedText, 500, 100);
+    const chunkCount = currentRag.loadDocument(file.originalname, file.size, readableText, 500, 100);
 
-    console.log(`[Cosmic RAG] Ingested "${file.originalname}" (${file.size} bytes) -> ${chunkCount} chunks [Session: ${sessionKey}].`);
+    // Synchronize RAG instance across all active session keys for this request
+    userRAGs.set(sessionKey, currentRag);
+
+    const token = req.cookies?.cosmic_session;
+    if (token) {
+      userRAGs.set(token, currentRag);
+      userRAGs.set(`sess_${token}`, currentRag);
+      if (token.startsWith('guest_')) {
+        userRAGs.set(`guest_${token}`, currentRag);
+      }
+      if (sessions.has(token)) {
+        const s = sessions.get(token)!;
+        if (s.username) userRAGs.set(`user_${s.username.trim().toLowerCase()}`, currentRag);
+        if (s.userId) userRAGs.set(`user_${s.userId}`, currentRag);
+      }
+    } else {
+      userRAGs.set('guest_default', currentRag);
+      lastGlobalRAG = currentRag;
+    }
+
+    // Persist to local disk cache
+    saveRAGToCache(sessionKey, currentRag);
+
+    console.log(`[Cosmic RAG] Successfully ingested "${file.originalname}" (${file.size} bytes, ${readableText.length} chars) -> ${chunkCount} chunks [Session: ${sessionKey}].`);
 
     res.json({
       success: true,
       message: `Document "${file.originalname}" uploaded and indexed into Cosmic Relic RAG (${chunkCount} chunks).`,
       documentName: file.originalname,
-      chunks: chunkCount
+      chunks: chunkCount,
+      documentLoaded: true
     });
   } catch (error: any) {
-    console.error('Upload handler error:', error);
+    console.error('[Cosmic RAG] Upload handler error:', error);
     res.status(500).json({
+      success: false,
       error: 'Failed to process document: ' + (error?.message || 'Unknown error')
     });
   }
@@ -1343,7 +1598,7 @@ app.post('/chat_stream', async (req: Request, res: Response) => {
 
   const sessionKey = getSessionKey(req);
   const currentMemory = getMemory(sessionKey);
-  const currentRag = getRAG(sessionKey);
+  const currentRag = getRAG(sessionKey, req);
 
   // Set streaming headers
   res.setHeader('Content-Type', 'text/plain; charset=utf-8');
@@ -1368,7 +1623,7 @@ app.post('/chat_stream', async (req: Request, res: Response) => {
 
   // If RAG query with no context was resolved
   if (resolution.noContextFound) {
-    const noContextMsg = 'I could not find that information in the uploaded document.';
+    const noContextMsg = 'The uploaded document does not contain enough information to answer that question.';
     currentMemory.add('assistant', noContextMsg, 'rag');
     res.write(noContextMsg);
     res.end();
@@ -1378,7 +1633,7 @@ app.post('/chat_stream', async (req: Request, res: Response) => {
   // 3. Try Gemini model stream if API key is present
   const aiClient = getGeminiClient();
   if (aiClient) {
-    const systemInstruction = buildSystemPrompt(resolution.ragContext);
+    const systemInstruction = buildSystemPrompt(resolution.ragContext, currentRag.documentName);
 
     // Prepare conversation history with alternating roles
     const historyTurns = currentMemory.getAll().slice(-12, -1);
@@ -1461,7 +1716,7 @@ app.post('/chat', async (req: Request, res: Response) => {
 
   const sessionKey = getSessionKey(req);
   const currentMemory = getMemory(sessionKey);
-  const currentRag = getRAG(sessionKey);
+  const currentRag = getRAG(sessionKey, req);
 
   const resolution = routeUserMessage(userMessage, currentRag);
   currentMemory.add('user', userMessage, resolution.intent);
@@ -1476,7 +1731,7 @@ app.post('/chat', async (req: Request, res: Response) => {
 
   // If RAG no context
   if (resolution.noContextFound) {
-    const noContextMsg = 'I could not find that information in the uploaded document.';
+    const noContextMsg = 'The uploaded document does not contain enough information to answer that question.';
     currentMemory.add('assistant', noContextMsg, 'rag');
     res.json({ response: noContextMsg });
     return;
@@ -1485,7 +1740,7 @@ app.post('/chat', async (req: Request, res: Response) => {
   // Try Gemini models
   const aiClient = getGeminiClient();
   if (aiClient) {
-    const systemInstruction = buildSystemPrompt(resolution.ragContext);
+    const systemInstruction = buildSystemPrompt(resolution.ragContext, currentRag.documentName);
     const historyTurns = currentMemory.getAll().slice(-12, -1);
     const contents: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> = [];
 

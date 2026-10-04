@@ -167,6 +167,11 @@
         currentAuthUser = null;
         isGuestSession = false;
 
+        // Cleanly disable Air Mouse if active
+        if (window.cosmicAirMouse && typeof window.cosmicAirMouse.disable === 'function') {
+            try { window.cosmicAirMouse.disable(); } catch (_) {}
+        }
+
         const els = getEls();
 
         if (els.macosDock) els.macosDock.style.display = 'none';

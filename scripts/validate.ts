@@ -164,7 +164,9 @@ Quantum containment shields maintain a 99.98% integrity coefficient.`;
     assert.strictEqual(res.status, 200);
     const data = await res.json();
     assert.ok(
-      data.response.includes('I could not find that information in the uploaded document'),
+      data.response.includes('The uploaded document does not contain enough information to answer') ||
+      data.response.includes('I could not find that information in the uploaded document') ||
+      data.response.toLowerCase().includes('does not contain enough information'),
       `Expected graceful absence message, got: ${data.response}`
     );
   });
